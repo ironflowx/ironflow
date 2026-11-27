@@ -1,6 +1,6 @@
 # Decisions
 
-The decisions behind the binary and the CLI, copied from [foundation's `decisions.md`](https://github.com/ironflowx/foundation/blob/1fc3d0e38f0442151ef5701ed08e37435c27fff3/docs/decisions.md) when they moved here from foundation (ironflowx/ironflow#2). Each keeps its foundation number, and **Since** is the foundation milestone that made it. A D number these docs name that is not below is foundation's, in that file.
+The decisions behind the binary and the CLI, copied from [foundation's `decisions.md`](https://github.com/ironflowx/foundation/blob/1fc3d0e38f0442151ef5701ed08e37435c27fff3/docs/decisions.md) when they moved here from foundation (ironflowx/ironflow#2). Each keeps its foundation number, and **Since** is the foundation milestone that made it. A D number these docs name that is not below is foundation's, in that file. Of D23, the crash-test crate stays in foundation; the server crash fixture is this repository's.
 
 | # | Since | Decision | Why |
 |---|---|---|---|

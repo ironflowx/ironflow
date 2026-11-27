@@ -4,7 +4,8 @@
 # checkout at <path>, in place of the commit Cargo.toml pins, through a [patch] in a temporary
 # .cargo/config.toml. Foundation's CI calls it for each foundation PR. The suite still runs the
 # vendored feature files and test helpers (vendor/foundation/), which follow the pin, not <path>.
-# Cargo.lock is restored on exit; the build goes to target/conformance unless CARGO_TARGET_DIR is set.
+# Cargo.lock is restored on exit. The build goes to target/conformance, unless CARGO_TARGET_DIR is
+# set.
 set -euo pipefail
 foundation=$(cd "${1:?usage: ci/conformance.sh <path-to-foundation>}" && pwd -P)
 cd "$(dirname "$0")/.."

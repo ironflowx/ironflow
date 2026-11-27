@@ -20,6 +20,16 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - run: cargo fmt --all --check
+      - run: ci/comment-width.sh crates ci/*.sh
+      - name: comment-width rejects its fixture and passes the exempt cases
+        run: |
+          ci/must-reject.sh \
+            "ci/fixtures/comment-width/long.sh:3:" \
+            "ci/fixtures/comment-width/long.rs:3:" \
+            "ci/fixtures/comment-width/long.rs:4:" \
+            "ci/fixtures/comment-width/long.rs:5: 101 columns" -- \
+            ci/comment-width.sh ci/fixtures/comment-width
+          ci/comment-width.sh ci/fixtures/comment-width-ok
 
   clippy:
     runs-on: ubuntu-latest

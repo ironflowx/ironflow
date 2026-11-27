@@ -48,7 +48,7 @@ All three are unpublished. The design is in [`docs/architecture.md`](docs/archit
 
 Foundation is a git dependency pinned to one commit in the root `Cargo.toml`, and CI tests that pin. When foundation 0.4.0 is on crates.io, with `ironflowx-doors` and `ironflowx-codegen` published for the first time, a release here depends on crates.io versions only. The binary carries foundation's release number until 1.0.0; the next release here is `v0.4.0`, built on foundation 0.4.0.
 
-A change that touches both repositories lands as two PRs: first foundation, then the pin bump here. To bump the pin, replace the commit everywhere it is named (`grep -rl <old-sha> .`: the root `Cargo.toml` and `ci/fixtures/engine-dep/`), run `cargo update -p ironflowx-core` (or any one foundation crate; they move together), refresh `vendor/foundation/` from foundation at the new commit, and run `ci/vendored.sh`.
+A change that touches both repositories lands as two PRs: first foundation, then the pin bump here. To bump the pin, replace the commit in the root `Cargo.toml` and in `ci/fixtures/engine-dep/Cargo.toml`, and run `cargo update -p ironflowx-core` (any one foundation crate; they move together) at the root and in `ci/fixtures/engine-dep/`. Refresh `vendor/foundation/` from foundation at the new commit, and run `ci/vendored.sh`. Leave the links in `docs/` alone: they name the commit the docs were copied from.
 
 ### Working on foundation too
 
@@ -67,7 +67,7 @@ ironflowx-proto = { path = "../foundation/crates/ironflowx-proto" }
 ironflowx-store = { path = "../foundation/crates/ironflowx-store" }
 ```
 
-Cargo then rewrites `Cargo.lock` for the patched sources, so `--locked` refuses until you run one command without it; do not commit that `Cargo.lock`.
+Cargo then rewrites `Cargo.lock` for the patched sources, so `--locked` refuses until you run one command without it; do not commit that `Cargo.lock`. The patch also reaches the fixture workspace `ci/purity.sh` runs Cargo in, so move the file aside before running that script, or `ci/fixtures/engine-dep/Cargo.lock` changes too.
 
 `ci/conformance.sh <path-to-foundation>` runs this repository's suite against a foundation checkout through the same `[patch]`, written for the run and removed after it, and restores `Cargo.lock`. Foundation's CI runs it for each foundation PR.
 
