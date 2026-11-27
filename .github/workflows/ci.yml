@@ -1,0 +1,107 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# The toolchain comes from rust-toolchain.toml. Foundation comes from the commit Cargo.toml pins.
+jobs:
+  fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: cargo fmt --all --check
+      - run: ci/comment-width.sh crates ci/*.sh
+      - name: comment-width rejects its fixture and passes the exempt cases
+        run: |
+          ci/must-reject.sh \
+            "ci/fixtures/comment-width/long.sh:3:" \
+            "ci/fixtures/comment-width/long.rs:3:" \
+            "ci/fixtures/comment-width/long.rs:4:" \
+            "ci/fixtures/comment-width/long.rs:5: 101 columns" -- \
+            ci/comment-width.sh ci/fixtures/comment-width
+          ci/comment-width.sh ci/fixtures/comment-width-ok
+
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+
+  # A separate job, not a matrix, so the `clippy` check keeps its name.
+  clippy-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: cargo clippy --workspace --all-targets --locked -- -D warnings
+
+  # ci/conformance.sh runs these same steps against a foundation checkout; keep the two alike.
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - run: cargo test --workspace --locked
+      - run: ci/serve-lifecycle.sh
+      - run: ci/server-crash.sh
+      # Feature unification can switch arbitrary_precision on in any build; numbers then reach the
+      # CLI's `--json` visitor as text, and a Value takes an object for a number.
+      - run: cargo test -p ironflowx-cli --locked --features serde_json/arbitrary_precision
+
+  # The vendored copies of foundation's files match foundation at the pinned commit.
+  vendored:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: ci/vendored.sh
+      - name: vendored rejects a changed copy
+        run: |
+          printf 'changed\n' >>vendor/foundation/docs/behaviors/events.feature
+          ci/must-reject.sh "vendored: vendor/foundation/docs/behaviors/events.feature differs" -- \
+            ci/vendored.sh
+
+  # deny.toml lists the Linux and macOS targets, so one run covers both.
+  deny:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: grep -v '^#' ci/tools.env >> "$GITHUB_ENV"
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-deny@${{ env.CARGO_DENY }}
+      - run: cargo deny check
+
+  # SRV-1, the host's engine dependencies, fault points in no release build, TEN-3; ci/README.md.
+  purity:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - run: ci/purity.sh
+
+  # The workflows and ci/ scripts: a shell mistake here makes a check pass without checking.
+  lint-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: grep -v '^#' ci/tools.env >> "$GITHUB_ENV"
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: shellcheck@${{ env.SHELLCHECK }}
+      # install-action has no actionlint manifest; go install checks the module against sum.golang.org.
+      - run: go install "github.com/rhysd/actionlint/cmd/actionlint@v$ACTIONLINT"
+      - run: '"$(go env GOPATH)/bin/actionlint"'
+      - run: shellcheck -x ci/*.sh

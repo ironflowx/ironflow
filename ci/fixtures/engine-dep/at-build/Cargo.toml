@@ -1,0 +1,7 @@
+[package]
+name = "at-build"
+version = "0.0.0"
+edition = "2024"
+
+[build-dependencies]
+ironflowx-events = { workspace = true }

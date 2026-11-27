@@ -1,0 +1,164 @@
+name: release
+on: workflow_dispatch
+jobs:
+  cargo_global:
+    runs-on: ubuntu-latest
+    steps:
+      - run: cargo --color always build --release --workspace
+  comment_scope:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          cargo build --release # -p ironflowx-bin
+  cross_build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: cross build --release --workspace
+  zigbuild:
+    runs-on: ubuntu-latest
+    steps:
+      - run: cargo zigbuild --release --workspace
+  locked_global:
+    runs-on: ubuntu-latest
+    steps:
+      - run: /usr/bin/cargo --locked build --release --workspace
+  implicit_run:
+    runs-on: ubuntu-latest
+    steps:
+      - run: '"cargo" run --release --bin ironflowx -- version'
+  subshell_group:
+    runs-on: ubuntu-latest
+    steps:
+      - run: (cargo build --release --workspace)
+  command_subst:
+    runs-on: ubuntu-latest
+    steps:
+      - run: artifact=$(cargo build --workspace --release --message-format=json | jq -r .executable)
+  test_no_run:
+    runs-on: ubuntu-latest
+    steps:
+      - run: cargo test --release --no-run -p ironflowx-bin
+  test_integration:
+    runs-on: ubuntu-latest
+    steps:
+      - run: cargo test --release --locked --no-run -p ironflowx-bin --test recovery
+  time_flag:
+    runs-on: ubuntu-latest
+    steps:
+      - run: time -p cargo build --release --workspace
+  leading_redir:
+    runs-on: ubuntu-latest
+    steps:
+      - run: 2>build.log cargo build --release --workspace
+  devnull_redir:
+    runs-on: ubuntu-latest
+    steps:
+      - run: '>/dev/null cargo build --release --workspace'
+  command_double_dash:
+    runs-on: ubuntu-latest
+    steps:
+      - run: command -- cargo build --release --workspace
+  time_o_flag:
+    runs-on: ubuntu-latest
+    steps:
+      - run: /usr/bin/time -o build.time cargo build --release --workspace
+  heredoc_bash:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          bash <<'BUILD'
+          cargo build --release --workspace
+          BUILD
+  arith_shift:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          (( bytes = 1 << 20 ))
+          cargo build --release --workspace
+  proc_subst:
+    runs-on: ubuntu-latest
+    steps:
+      - run: cargo build --release -p ironflowx-bin > >(tee build.log) --all-targets
+  brace_fd:
+    runs-on: ubuntu-latest
+    steps:
+      - run: '{log_fd}>build.log cargo build --release --workspace'
+  exec_combined:
+    runs-on: ubuntu-latest
+    steps:
+      - run: exec -ca release-cargo cargo build --release --workspace
+  dollar_heredoc:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          cat <<$'NOTES'
+          notes
+          NOTES
+          cargo build --release --workspace
+  subshell_printf:
+    runs-on: ubuntu-latest
+    steps:
+      - run: "(printf '%s\\n' 'cargo build --release --workspace') | bash"
+  brace_script:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          {
+            echo 'cargo build --release --workspace'
+          } > build.sh
+          bash build.sh
+  cargo_alias:
+    runs-on: ubuntu-latest
+    steps:
+      - run: CARGO_ALIAS_RELEASE_BUILD='build --release --workspace' cargo release-build
+  case_script:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          case "$target" in
+            *) echo 'cargo build --release --workspace' ;;
+          esac > build.sh
+          bash build.sh
+  nested_if_script:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          if true; then if true; then true; fi
+            echo 'cargo build --release --workspace'
+          fi > build.sh
+          bash build.sh
+  then_for_script:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          if true; then for x in 1; do true; done
+            printf '%s\n' 'cargo build --release --workspace'
+          fi > build.sh
+          bash build.sh
+  alias_override:
+    runs-on: ubuntu-latest
+    steps:
+      - run: CARGO_ALIAS_B='build --all-targets' cargo b --release -p ironflowx-bin
+  job_env_alias:
+    runs-on: ubuntu-latest
+    env:
+      CARGO_ALIAS_B: "build --all-targets"
+    steps:
+      - run: cargo b --release -p ironflowx-bin
+  shorthand_b:
+    runs-on: ubuntu-latest
+    steps:
+      - run: cargo b --release -p ironflowx-bin
+  pkg_zig:
+    runs-on: ubuntu-latest
+    steps:
+      - run: cargo zigbuild --release -p ironflowx-bin
+  batched_env_alias:
+    runs-on: ubuntu-latest
+    steps:
+      - run: printf 'RUST_LOG=info\nCARGO_ALIAS_B=build --all-targets\n' >> "$GITHUB_ENV"
+      - run: cargo build --release -p ironflowx-bin
+  inline_alias_config:
+    runs-on: ubuntu-latest
+    steps:
+      - run: cargo --config 'alias.b="build --all-targets"' build --release -p ironflowx-bin

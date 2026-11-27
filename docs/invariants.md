@@ -1,0 +1,58 @@
+# Invariants
+
+The properties the binary and the CLI prove, copied from [foundation's `invariants.md`](https://github.com/ironflowx/foundation/blob/1fc3d0e38f0442151ef5701ed08e37435c27fff3/docs/invariants.md) when they moved here, with foundation's IDs: TEN for tenancy, SRV for serving. A behavior shows one example; an invariant holds for every input.
+
+**Form:** **T** a type or API makes the violation unrepresentable · **U** a unit or integration test · **S** a property checked under faults · **B** a behavior scenario · **C** a CI check, which must reject a violating fixture.
+
+## The host's own
+
+These rows are proven here alone.
+
+| ID | Property | Rust form | Form | Proven by |
+|---|---|---|---|---|
+| SRV-7 | `admin.key` holds a whole key or does not exist, and is never overwritten. A failed probe stops before open or file-mode recovery | Temporary file, sync, hard link, sync the directory; an `admin.key` in a data directory with no `control.db` stops `serve` before it binds, and with `admin.key` present, an `Ok(false)` from the engine's `is_bootstrapped` stops it before `open`. A seedless start with an unreadable bootstrap requires an absent destination and a successful dummy write and hard-link probe before it opens. File-mode recovery refuses any occupied destination and runs the same probe before minting | U, B | HOST-001, HOST-017, HOST-018. Tests of `is_bootstrapped` with no control plane, an unbootstrapped control plane, an unmarked and a marked bootstrap, and a failed read. Tests of a stale `admin.key` with no `control.db`, a dangling symbolic link included, with an empty one and with an unmarked bootstrap: exit 2, the file kept, nothing opened; of one beside an unreadable control plane; of a later start over the `admin.key` an earlier one wrote; and of one that appears while the engine opens: it is kept, the start fails, serves nothing any more and leaves no temporary file; and of the file's mode under a umask that takes the owner's bits. Tests of successful probe cleanup, a collision, an OS refusal to unlink both names, and a failed probe that reaches no engine open or recovery. With two recovery processes held after preflight, the winner keeps its whole file and the loser exits 1 with its own committed key ID and how to revoke it; server crash test |
+| SRV-8 | A start whose address is in use changes nothing in the data directory | Bind before creating the directory or probing the file | B | HOST-009 |
+| SRV-13 | Every host setting has a flag and variable, and an unread variable warns once at startup | One setting table supplies names and defaults. The flag wins. A seed file and an inline seed conflict | U, B | Process matrix for each setting with flag, variable, both and empty. HOST-004, HOST-014, HOST-015 |
+| SRV-15 | A panic in the server process aborts it | The dev and release profiles set `panic = "abort"` (D63) | C | `ci/serve-lifecycle.sh` checks both profiles with a handler panic and a writer panic in subprocesses, then reopens their data directories. A deliberately damaged read-store row exercises the wire conversion's fixed panic diagnostic |
+
+## Shared with foundation
+
+These hold across the engine, the door and the binary. Foundation's row has its own half; this repository proves the binary's and the CLI's half below.
+
+| ID | Property | Proven here by |
+|---|---|---|
+| TEN-3 | A secret is never stored, logged or printed in clear, except where it is delivered on purpose: `admin.key`, the temporary file it is linked from, the `Authorization` header of a call, stdout of `keys create`, `recover-key --stdout` or `seed generate`, and the variable or file given to the CLI or host | For `ironflowx serve`, its log on a first start (HOST-001) and a later one, its log, its stdout and its data directory, `admin.key` aside, after keys are created and revoked through the proto client, and that a client's error names no key; for the CLI, that a usage error, what `--json` refuses included, an unreadable `--key-file`, `--help` and what an endpoint answers that repeats the key, its secret alone or most of it, unchanged, print none, that `events get` and `events list` print no event whose data, metadata or idempotency key holds 43 bytes in a row of the caller's key, written as they are, that no key is created with the caller's in its label, however its JSON writes it; for recovery, a search of subprocess stderr, host logs and all data-directory entries except the delivered file (HOST-017), and of the losing recovery process's stdout and stderr; and `ci/clap-trace.sh`, that the binary built with clap's tracing reads no argument. The binary behavior suite starts every host at trace and checks each CLI subprocess's stdout and stderr separately. `behaviors/output.rs` checks the sole permitted credential in the top-level `key` field, its matching key ID, empty stdout for refusals before output, and the absence of other fixture credentials and their secret portions. The runner checks trace logs, refusal diagnostics and data-directory paths and contents before and after close. The binary's CLI and recovery integration tests cover broken stdout. `a_short_write_leaves_only_the_response_prefix` checks the exact bytes after partial seed, recovery and key-creation writes. The key-search helper is foundation's, vendored (`vendor/foundation/`) |
+| SRV-1 | The door forwards every call unchanged, so a remote and an in-process call get the same answer to any request both can express | `ci/no-engine-deps.sh` over `ironflowx-cli`: it depends on `ironflowx-proto` and `ironflowx-core` only, the generator at build time aside, with a fixture of each way to depend on an engine crate and one that may depend on what it does. Every scenario of foundation's `events.feature` and `tenancy.feature` not tagged `@local`, through the client against the binary. HOST-023, HOST-025, HOST-026 |
+| SRV-6 | A call acts with the key its `Call` holds, and nothing else; the CLI sends only a key it was given: `--key-file`, then `IRONFLOWX_KEY`, then none | One `Client` making alternating anonymous, `read`, revoked and admin calls to a served engine gets each key's own answer; a test of the key the CLI sends for each way to give it. HOST-021, CLI-006, CLI-007 |
+| SRV-10 | No acknowledged write is lost when the server stops, and no call reaches the engine after close: the slot stops admission before closing the listener, requests get up to 10 s, the host drops the rest before awaiting `Engine::close_with_state` | HOST-012. `ci/serve-lifecycle.sh` checks a refusal on an existing connection, a second signal, a transport deadline during open with key publication afterward, and deadline cancellation before admission and during ledger and control-plane writes. The server crash test kills the host during drain and checks acknowledged writes after restart (`kill_during_drain`) |
+| SRV-11 | Each error kind has one exit code and every host refusal maps to one kind. The refusal envelope is the final stderr line; the binary shares the CLI envelope writer | Every host error variant has a code check. Process tests check the exit code and envelope on failed starts, the CLI's usage and call failures, HOST-009–011, and the recovery exits for missing and unbootstrapped directories, an existing destination, failed probe, format mismatch, unavailable store and delivery failure |
+| SRV-12 | Every example shown by `describe` is valid against its request's schema and runs | CLI-009 runs every example with the bootstrap key against a fresh engine: it succeeds or, for an example naming an ID, answers `not_found` |
+| LED-11, LED-14 | What an operation changes commits whole or not at all and is visible only once durable; a read sees every write acknowledged before it arrived | The server crash test, below |
+
+## Serving regression checks
+
+| Invariant | Check that detects a regression |
+|---|---|
+| SRV-7 | `the_key_file_is_its_owners_to_read_whatever_the_umask` in `ironflowx-bin/tests/serve.rs` checks private key-file publication. |
+| SRV-8 | `an_address_in_use_leaves_no_data_directory` in `ironflowx-bin/tests/serve.rs` checks the order of startup work. |
+| SRV-13 | `directories_and_addresses_come_from_the_flag_then_the_variable` in `ironflowx-bin/tests/serve.rs` checks flag precedence. |
+| SRV-15 | `ci/serve-lifecycle.sh` rejects the lifecycle fixture with the unwind profile override. |
+| TEN-3 | `output::fixtures` in the behavior harness rejects a missing top-level key, a mismatched ID, repeated key text, secret portions outside the delivery field, and credentials in paths or files outside file delivery. |
+
+## Server crash test
+
+`ci/server-crash.sh` builds the real `ironflowx` once, with `__fault-points` in a dedicated target directory (D23). The parent runs disposable children on the host clock and reads each loopback URL from its `listening` record. The proto client writes and reads, and the CLI reads an acknowledged event and runs file-mode recovery. The parent supplies a private seed file except in the minting rows. Minted and recovered secrets travel back through the private socket on stdin, while the parent captures and checks both output streams. The points before and after the real key-file link leave the publication order and cleanup intact.
+
+| Killed | After restart |
+|---|---|
+| SIGKILL at a seeded crossing under keyed and unkeyed emits and mixed batches from four clients | Every acknowledged ID reads back. A write of unknown outcome is all present or all absent. Live reads see acknowledged writes, and before head publication the parked write remains invisible (LED-11, LED-14) |
+| SIGTERM under the same load, then SIGKILL after an in-flight write is acknowledged during drain, while another HTTP request still holds its body | The same checks hold, including the acknowledgment observed between `stopping` and SIGKILL |
+| No seed, before the bootstrap commits | The restart mints and publishes a working admin key and reports no lost secret |
+| No seed, after the bootstrap commits and before its mark | The finishing open revokes the lost minted key, logs that loss and publishes a working replacement |
+| No seed, after the mark and before the link | The later open leaves `admin.key` absent and reports no lost mint. A recovered admin key can list the original as `Minted` and revoke it |
+| No seed, after the link | `admin.key` holds the exact minted key, which authenticates |
+| File-mode recovery before its commit, after its commit or after the link | Before commit, no new key. After commit and before the link, the new key is listed as `Recovered` with no `admin.key`. Revoke it and recover again. After the link, `admin.key` holds the whole working key |
+
+A separate read checks LED-14 at the exact ordering boundary. The writer parks after acknowledgment and before fold. A second client reads that ID and reaches the wait on the committed head. Releasing the writer then lets the read return that ID.
+
+The random case prints `SERVER_CRASH_SEED=<seed> ci/server-crash.sh seeded_random_kill`. This replays the workload length, fault point and crossing. The host clock and the order in which concurrent clients reach the writer are chosen by the host and OS. The matrix runs in CI's Linux and macOS `test` jobs and in `ci/conformance.sh`. It exercises process death, with the OS page cache still in place, and leaves commit error injection to the engine tests. The `purity` job rejects a release workflow that explicitly names `__fault-points`, uses `--all-features`, builds with other packages or dev targets, or has the feature in the binary's ordinary build graph.

@@ -1,0 +1,3 @@
+#!/bin/sh
+# ci/clap-trace.sh fixture: its refusal exits 0.
+echo '{"code":"invalid","message":"clap is built with its debug feature","retryable":false}' >&2

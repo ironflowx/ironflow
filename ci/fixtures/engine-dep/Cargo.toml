@@ -1,0 +1,16 @@
+# SRV-1 fixture: packages that depend on an engine crate, each in its own way, and one that may.
+[workspace]
+resolver = "3"
+members = ["direct", "renamed", "optional", "target-only", "at-build", "through", "facade", "generator", "allowed"]
+
+# Foundation at the commit the root Cargo.toml pins.
+[workspace.dependencies]
+ironflowx = { git = "https://github.com/ironflowx/foundation", rev = "1fc3d0e38f0442151ef5701ed08e37435c27fff3" }
+ironflowx-authz = { git = "https://github.com/ironflowx/foundation", rev = "1fc3d0e38f0442151ef5701ed08e37435c27fff3" }
+ironflowx-cell = { git = "https://github.com/ironflowx/foundation", rev = "1fc3d0e38f0442151ef5701ed08e37435c27fff3" }
+ironflowx-codegen = { git = "https://github.com/ironflowx/foundation", rev = "1fc3d0e38f0442151ef5701ed08e37435c27fff3" }
+ironflowx-core = { git = "https://github.com/ironflowx/foundation", rev = "1fc3d0e38f0442151ef5701ed08e37435c27fff3" }
+ironflowx-events = { git = "https://github.com/ironflowx/foundation", rev = "1fc3d0e38f0442151ef5701ed08e37435c27fff3" }
+ironflowx-operations = { git = "https://github.com/ironflowx/foundation", rev = "1fc3d0e38f0442151ef5701ed08e37435c27fff3" }
+ironflowx-proto = { git = "https://github.com/ironflowx/foundation", rev = "1fc3d0e38f0442151ef5701ed08e37435c27fff3" }
+ironflowx-store = { git = "https://github.com/ironflowx/foundation", rev = "1fc3d0e38f0442151ef5701ed08e37435c27fff3" }
