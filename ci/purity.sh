@@ -2,7 +2,7 @@
 # Usage: ci/purity.sh
 # The binary's and the CLI's dependency boundaries: the CLI links no engine crate (SRV-1), the host
 # reaches the engine's parts only through it; the crash test's fault points in no release build
-# (foundation D23); a clap that prints arguments, refused (TEN-3); ci/must-reject.sh; and each
+# (D23); a clap that prints arguments, refused (TEN-3); ci/must-reject.sh; and each
 # check rejecting its fixture.
 set -euo pipefail
 cd "$(dirname "$0")/.."
