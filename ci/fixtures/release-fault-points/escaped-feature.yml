@@ -1,0 +1,13 @@
+name: release
+on: workflow_dispatch
+jobs:
+  escaped_feature:
+    runs-on: ubuntu-latest
+    steps:
+      - run: cargo --locked build --release -p ironflowx-bin -F __fault\-points
+  continued_feature:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          cargo build --release -p ironflowx-bin -F __fault-\
+          points

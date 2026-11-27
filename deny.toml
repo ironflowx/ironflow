@@ -1,0 +1,26 @@
+[graph]
+# CI runs cargo-deny once, on Linux; check the dependency graph of both supported platforms.
+targets = ["x86_64-unknown-linux-gnu", "aarch64-unknown-linux-gnu", "x86_64-apple-darwin", "aarch64-apple-darwin"]
+
+[licenses]
+allow = [
+  "MIT",
+  # unicode-ident's Unicode data tables; reached only by the proc macros of dev-dependencies
+  # (tokio's test macros, cucumber).
+  "Unicode-3.0",
+  # subtle: the key digest's constant-time comparison (TEN-4), in ironflowx-authz.
+  "BSD-3-Clause",
+  # The wire, in ironflowx-proto's features: connectrpc and buffa, which serve and call it, and
+  # their smoothutf8 and sync_wrapper; protox's prost and miette, which compile the proto.
+  "Apache-2.0",
+  # client-tls's aws-lc-rs and aws-lc-sys, rustls-webpki and untrusted: the proto client's `https`.
+  "ISC",
+  # foldhash: buffa's hash tables.
+  "Zlib",
+  # borrow-or-share: under jsonschema, which checks the proto's examples as ironflowx-cli builds.
+  "MIT-0",
+]
+
+[sources]
+# Foundation, pinned to one commit in Cargo.toml until its 0.4.0 is on crates.io.
+allow-git = ["https://github.com/ironflowx/foundation"]

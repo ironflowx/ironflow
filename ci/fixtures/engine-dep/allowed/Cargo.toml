@@ -1,0 +1,14 @@
+[package]
+name = "allowed"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+ironflowx-core = { workspace = true }
+ironflowx-proto = { workspace = true }
+
+[build-dependencies]
+ironflowx-codegen = { workspace = true }
+
+[dev-dependencies]
+ironflowx-operations = { workspace = true }

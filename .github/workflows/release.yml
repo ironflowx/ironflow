@@ -1,0 +1,90 @@
+name: release
+
+# A `vX.Y.Z` tag publishes the archives and the tag's CHANGELOG section. A manual run
+# builds and verifies the same archives and leaves them as workflow artifacts.
+on:
+  push:
+    tags: ["v[0-9]*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  archives:
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            target: x86_64-unknown-linux-musl
+          - runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-musl
+          - runner: macos-26
+            target: aarch64-apple-darwin
+    runs-on: ${{ matrix.runner }}
+    env:
+      TARGET: ${{ matrix.target }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Install musl build tools
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends musl-tools
+          rustup target add "$TARGET"
+      - name: Check the ELF rejection fixtures
+        if: runner.os == 'Linux'
+        run: ci/release-static-fixtures.sh
+      - run: cargo build --release --locked -p ironflowx-bin --target "$TARGET"
+      - name: Package and verify the archive
+        run: ci/release-archive.sh "$TARGET"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-${{ matrix.target }}
+          path: dist/
+          if-no-files-found: error
+          overwrite: true
+
+  release:
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    needs: archives
+    permissions:
+      contents: write
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: The tag matches the workspace version
+        run: |
+          version=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -n 1)
+          test "v$version" = "$GITHUB_REF_NAME" || { echo "tag $GITHUB_REF_NAME, Cargo.toml $version" >&2; exit 1; }
+      - name: Notes
+        run: |
+          # The notes are the CHANGELOG section of this version, up to the next "## " heading.
+          awk -v v="## ${GITHUB_REF_NAME#v} " 'index($0, v) == 1 { on = 1; next } /^## / { on = 0 } on' CHANGELOG.md >notes.md
+          test -s notes.md || { echo "no CHANGELOG section for $GITHUB_REF_NAME" >&2; exit 1; }
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: release-*
+          merge-multiple: true
+          path: dist/
+      - name: Publish the verified archives
+        shell: bash
+        run: |
+          cd dist
+          assets=()
+          for target in x86_64-unknown-linux-musl aarch64-unknown-linux-musl aarch64-apple-darwin; do
+            archive="ironflowx-${GITHUB_REF_NAME#v}-$target.tar.gz"
+            ../ci/release-checksum.sh "$archive"
+            assets+=("$archive" "$archive.sha256")
+          done
+          gh release create "$GITHUB_REF_NAME" --verify-tag --title "$GITHUB_REF_NAME" \
+            --notes-file ../notes.md "${assets[@]}"
+        env:
+          GH_TOKEN: ${{ github.token }}

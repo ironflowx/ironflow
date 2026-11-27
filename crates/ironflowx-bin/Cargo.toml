@@ -1,13 +1,65 @@
 [package]
 name = "ironflowx-bin"
-description = "The ironflow binary."
+description = "The `ironflowx` binary: the host that serves an engine. Unpublished."
+publish = false
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
-repository.workspace = true
-publish.workspace = true
 
 [[bin]]
-name = "ironflow"
+name = "ironflowx"
 path = "src/main.rs"
+# Its page would overwrite the facade's, of the same name.
+doc = false
+test = false
+
+[features]
+__fault-points = ["ironflowx-core/__fault-points", "ironflowx-operations/__fault-points"]
+
+[[test]]
+name = "server_crash"
+required-features = ["__fault-points"]
+
+[[example]]
+name = "serve_lifecycle"
+required-features = ["__fault-points"]
+
+# The race test runs the recovery handler in child processes and captures their raw output.
+[[test]]
+name = "recovery_race"
+harness = false
+
+[dependencies]
+ironflowx-cli = { path = "../ironflowx-cli" }
+ironflowx-core.workspace = true
+ironflowx-doors = { workspace = true, features = ["http"] }
+ironflowx-operations.workspace = true
+ironflowx-proto.workspace = true
+axum = { version = "0.8.9", default-features = false }
+# Exact: ironflowx-cli refuses a clap that prints arguments by what this one does (TEN-3).
+clap = { version = "=4.6.9", default-features = false, features = ["error-context", "help", "std", "usage"] }
+hyper = { version = "1.13.0", default-features = false, features = ["server"] }
+hyper-util = { version = "0.1.21", default-features = false, features = ["http1", "http2", "server-auto", "service", "tokio"] }
+tempfile = "3.27.0"
+tokio = { version = "1.54.1", default-features = false, features = ["macros", "net", "rt-multi-thread", "signal", "sync", "time"] }
+tokio-util = { version = "0.7.20", default-features = false, features = ["rt"] }
+tracing = { version = "0.1.44", default-features = false }
+tracing-subscriber = { version = "0.3.23", default-features = false, features = ["fmt", "json"] }
+
+[dev-dependencies]
+ironflowx-authz.workspace = true
+# For the fault hook of tests/starting.rs and tests/unknown.rs; a dev-dependency does not ship.
+ironflowx-cell = { workspace = true, features = ["__fault-points"] }
+ironflowx-core = { workspace = true, features = ["__fault-points"] }
+ironflowx-operations = { workspace = true, features = ["__fault-points"] }
+ironflowx-store = { workspace = true, features = ["__fault-points"] }
+ironflowx-proto = { workspace = true, features = ["client", "wire"] }
+axum = { version = "0.8.9", default-features = false, features = ["http1", "http2", "tokio"] }
+connectrpc = { version = "0.9.1", default-features = false, features = ["client"] }
+hyper = { version = "1.13.0", default-features = false, features = ["client", "http1"] }
+rusqlite = { version = "0.43.0", default-features = false, features = ["bundled"] }
+rustix = { version = "1.1.6", default-features = false, features = ["process", "pty", "std"] }
+serde_json.workspace = true
+tokio = { version = "1.54.1", default-features = false, features = ["io-util", "test-util"] }
+tokio-rustls = { version = "0.26.6", default-features = false, features = ["aws_lc_rs", "tls12"] }

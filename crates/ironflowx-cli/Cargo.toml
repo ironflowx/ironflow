@@ -1,0 +1,22 @@
+[package]
+name = "ironflowx-cli"
+description = "The CLI: an engine's operations as commands, generated from the proto. Unpublished."
+publish = false
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+# No engine crate: ci/no-engine-deps.sh (SRV-1).
+[dependencies]
+ironflowx-core.workspace = true
+ironflowx-proto = { workspace = true, features = ["client-tls", "wire"] }
+# Exact: ironflowx-cli refuses a clap that prints arguments by what this one does (TEN-3).
+clap = { version = "=4.6.9", default-features = false, features = ["error-context", "help", "std", "usage"] }
+serde_core.workspace = true
+serde_json.workspace = true
+tokio = { version = "1.54.1", default-features = false, features = ["net", "rt", "time"] }
+
+[build-dependencies]
+ironflowx-codegen.workspace = true
+ironflowx-proto = { workspace = true, features = ["wire"] }

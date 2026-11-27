@@ -1,0 +1,48 @@
+name: release
+on: workflow_dispatch
+jobs:
+  archive:
+    strategy:
+      matrix:
+        target: [x86_64-unknown-linux-musl]
+    runs-on: ubuntu-latest
+    steps:
+      - run: >-
+          cargo build --release --locked --package ironflowx-bin
+          --target "${{ matrix.target }}"
+      - run: |
+          cargo +stable build --release --locked \
+            --package=ironflowx-bin
+      - run: |
+          cargo --color always build -p 'ironflowx-bin' --release # no --all-features
+      - name: Compile without --all-features
+        run: echo cargo build --release
+      - run: cargo run --release -p ironflowx-bin -- version --all-features
+      - run: |
+          cat <<'NOTES' >> "$GITHUB_STEP_SUMMARY"
+          It's ready.
+          NOTES
+          artifact=$(printf '%s' ok # unmatched (
+          )
+          summary=$(cat <<'EOF'
+          It's ready.
+          EOF
+          )
+          continued=$( \
+          # unmatched (
+          printf '%s' ok
+          )
+          echo "$artifact $summary $continued"
+      - run: |
+          tag=$( \
+          # unmatched (
+          printf '%s' ok
+          )
+          test -f build.log || echo 'cargo build skipped'
+          false || printf '%s\n' 'cargo build finished'
+          cargo build --release --locked -p ironflowx-bin
+          echo "$tag"
+          echo 'cargo' 'done'
+      - run: |
+          cargo metadata --manifest-path tools/alias.toml --no-deps --format-version 1
+          cargo --config 'env.BUILD_FILE="alias.toml"' build --release -p ironflowx-bin

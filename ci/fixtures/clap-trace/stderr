@@ -1,0 +1,5 @@
+#!/bin/sh
+# ci/clap-trace.sh fixture: it prints its argument, then refuses.
+echo "parsing $2" >&2
+echo '{"code":"invalid","message":"clap is built with its debug feature","retryable":false}' >&2
+exit 2
