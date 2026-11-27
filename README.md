@@ -1,4 +1,4 @@
-# ironflow
+# Ironflow X
 
 [![CI](https://github.com/ironflowx/ironflow/actions/workflows/ci.yml/badge.svg?branch=main&event=push)](https://github.com/ironflowx/ironflow/actions/workflows/ci.yml?query=branch%3Amain)
 
@@ -48,7 +48,7 @@ All three are unpublished. The design is in [`docs/architecture.md`](docs/archit
 
 Foundation is a git dependency pinned to one commit in the root `Cargo.toml`, and CI tests that pin. When foundation 0.4.0 is on crates.io, with `ironflowx-doors` and `ironflowx-codegen` published for the first time, a release here depends on crates.io versions only. The binary carries foundation's release number until 1.0.0; the next release here is `v0.4.0`, built on foundation 0.4.0.
 
-A change that touches both repositories lands as two PRs: first foundation, then the pin bump here. To bump the pin, replace the commit in the root `Cargo.toml` and in `ci/fixtures/engine-dep/Cargo.toml`, and run `cargo update -p ironflowx-core` (any one foundation crate; they move together) at the root and in `ci/fixtures/engine-dep/`. Refresh `vendor/foundation/` from foundation at the new commit, and run `ci/vendored.sh`. Leave the links in `docs/` alone: they name the commit the docs were copied from.
+A change that touches both repositories lands as two PRs: first foundation, then the pin bump here. To bump the pin, replace the commit in the root `Cargo.toml`, `ci/fixtures/engine-dep/Cargo.toml` and `ci/fixtures/engine-dep/renamed/Cargo.toml`, and run `cargo update -p ironflowx-core` (any one foundation crate; they move together) at the root and in `ci/fixtures/engine-dep/`. Refresh `vendor/foundation/` from foundation at the new commit, and run `ci/vendored.sh`. Leave the links in `docs/` alone: they name the commit the docs were copied from.
 
 ### Working on foundation too
 

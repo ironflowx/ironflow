@@ -4,4 +4,4 @@ Each release lists what it adds and changes. The binary carries foundation's rel
 
 ## Unreleased
 
-- **The binary moves here from foundation** ([#2](https://github.com/ironflowx/ironflow/issues/2)): the `ironflowx` binary and CLI, their tests and behavior scenarios, the server crash test and the release archives are built from this repository, on foundation pinned at `1fc3d0e38f04`. No behavior change.
+- **The binary moves here from foundation** ([#2](https://github.com/ironflowx/ironflow/issues/2)): the `ironflowx` binary and CLI, their tests and behavior scenarios, the server crash test and the release archives are built from this repository, on foundation pinned at `d840c6cb611d`. No behavior change.
