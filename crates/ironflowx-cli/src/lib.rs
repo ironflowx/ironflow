@@ -219,7 +219,8 @@ fn flags(command: &Command) -> impl Iterator<Item = &'static Field> {
 }
 
 /// The flag of `field`: what it parses to is the field, or an item of its list, in wire JSON. A
-/// `bool` field's flag takes no value: given, it sends `true` (foundation's architecture, "Proto").
+/// `bool` field's flag takes no value: given, it sends `true`, and absent, nothing, which the wire
+/// reads as false (docs/architecture.md, "CLI", Arguments).
 fn flag(command: &Command, field: &'static Field) -> Arg {
     if is_switch(field) {
         return Arg::new(field.name)
