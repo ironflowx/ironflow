@@ -573,7 +573,7 @@ fn every_example(_: &mut Cli) {
         assert!(output.is_valid(&answer), "{path}: output fails its schema");
         match path {
             "events get" => requires(&output, &answer, "", &["data", "time"]),
-            // A door's whoami always names its key: only an embedder's call has none (foundation#229).
+            // A door's whoami always names its key: only an embedder's call has none (D121).
             "whoami" => requires(&output, &answer, "", &["key_id"]),
             "keys create" => {
                 requires(&output, &answer, "", &["info"]);
