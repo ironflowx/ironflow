@@ -91,7 +91,7 @@ async fn recovery_distinguishes_wrong_format_from_a_control_plane_fault() {
     opened.engine.close().await;
     let control = dir.path().join("control.db");
     let db = rusqlite::Connection::open(&control).unwrap();
-    db.execute_batch("UPDATE meta SET format = 2").unwrap();
+    db.execute_batch("UPDATE meta SET format = 1").unwrap();
     drop(db);
     assert_eq!(
         refusal(recovery(dir.path()).output().unwrap(), 1),

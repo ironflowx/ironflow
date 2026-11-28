@@ -601,7 +601,10 @@ async fn generated_seeds_authenticate_without_creating_a_key_file() {
         let cx = Call::with_key(Secret::new(key.to_owned()));
         let me = client.whoami(&cx, WhoamiRequest {}).await.unwrap();
         assert_eq!(me.key_id.to_string(), seed["key_id"]);
-        assert_eq!(me.scopes, [Scope::Read, Scope::Write, Scope::Admin].into());
+        assert_eq!(
+            me.scopes,
+            [Scope::Read, Scope::Write, Scope::Admin, Scope::Execute].into()
+        );
         assert_eq!(leak(&served.stop(), [key]), None);
         assert!(!data.join("admin.key").exists());
     }
@@ -729,7 +732,7 @@ fn the_host_preserves_a_control_plane_of_another_format() {
     let control = dir.path().join("control.db");
     drop(ControlPlane::open(&control).unwrap());
     let db = rusqlite::Connection::open(&control).unwrap();
-    db.execute_batch("UPDATE meta SET format = 2").unwrap();
+    db.execute_batch("UPDATE meta SET format = 1").unwrap();
     drop(db);
     let before = std::fs::read(&control).unwrap();
     let (code, log) = refused(dir.path(), "127.0.0.1:0");

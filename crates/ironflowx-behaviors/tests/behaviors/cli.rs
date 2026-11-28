@@ -374,7 +374,7 @@ fn names(w: &mut Cli, exit: i32, code: String, named: String) {
 fn names_the_key(w: &mut Cli) {
     let expected = json!({
         "key_id": w.key()[4..40],
-        "scopes": ["read", "write", "admin"],
+        "scopes": ["read", "write", "admin", "execute"],
         "environment": "default/default",
     });
     assert_eq!(w.answer(), expected);
@@ -607,7 +607,7 @@ fn input_edges(_: &mut Cli) {
             "keys create",
             [
                 json!({"scopes": []}),
-                json!({"scopes": ["read", "write", "admin"]}),
+                json!({"scopes": ["read", "write", "admin", "execute"]}),
             ],
             [json!({"scopes": ["owner"]}), json!({"scopes": ["READ"]})],
         ),

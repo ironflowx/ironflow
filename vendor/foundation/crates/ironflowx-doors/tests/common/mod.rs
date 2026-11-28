@@ -28,7 +28,7 @@ pub fn whoami() -> Whoami {
 }
 
 /// Each kind once, in no order that matters.
-pub const KINDS: [ErrorKind; 8] = [
+pub const KINDS: [ErrorKind; 9] = [
     ErrorKind::Invalid,
     ErrorKind::Unauthenticated,
     ErrorKind::PermissionDenied,
@@ -37,6 +37,7 @@ pub const KINDS: [ErrorKind; 8] = [
     ErrorKind::ResourceExhausted,
     ErrorKind::Unavailable,
     ErrorKind::Internal,
+    ErrorKind::Conflict,
 ];
 
 const EVENT_ID: &str = "0190b5f0-0000-7000-8000-000000000005";

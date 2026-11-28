@@ -15,6 +15,7 @@ const EXIT_KINDS: &[ErrorKind] = &[
     ErrorKind::Unknown,
     ErrorKind::ResourceExhausted,
     ErrorKind::Unavailable,
+    ErrorKind::Conflict,
 ];
 
 pub(super) fn command() -> clap::Command {

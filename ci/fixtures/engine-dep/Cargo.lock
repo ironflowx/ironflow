@@ -354,7 +354,7 @@ dependencies = [
 [[package]]
 name = "ironflowx"
 version = "0.3.0"
-source = "git+https://github.com/ironflowx/foundation?rev=d840c6cb611d44c8b43140d7f8efb4a9a8f53f07#d840c6cb611d44c8b43140d7f8efb4a9a8f53f07"
+source = "git+https://github.com/ironflowx/foundation?rev=01b055fded1e6f6bbbc2015a2ea45856841fb8e0#01b055fded1e6f6bbbc2015a2ea45856841fb8e0"
 dependencies = [
  "ironflowx-cell",
  "ironflowx-core",
@@ -365,7 +365,7 @@ dependencies = [
 [[package]]
 name = "ironflowx-authz"
 version = "0.3.0"
-source = "git+https://github.com/ironflowx/foundation?rev=d840c6cb611d44c8b43140d7f8efb4a9a8f53f07#d840c6cb611d44c8b43140d7f8efb4a9a8f53f07"
+source = "git+https://github.com/ironflowx/foundation?rev=01b055fded1e6f6bbbc2015a2ea45856841fb8e0#01b055fded1e6f6bbbc2015a2ea45856841fb8e0"
 dependencies = [
  "base64 0.23.1",
  "ironflowx-core",
@@ -376,7 +376,7 @@ dependencies = [
 [[package]]
 name = "ironflowx-cell"
 version = "0.3.0"
-source = "git+https://github.com/ironflowx/foundation?rev=d840c6cb611d44c8b43140d7f8efb4a9a8f53f07#d840c6cb611d44c8b43140d7f8efb4a9a8f53f07"
+source = "git+https://github.com/ironflowx/foundation?rev=01b055fded1e6f6bbbc2015a2ea45856841fb8e0#01b055fded1e6f6bbbc2015a2ea45856841fb8e0"
 dependencies = [
  "getrandom 0.4.3",
  "ironflowx-core",
@@ -390,7 +390,7 @@ dependencies = [
 [[package]]
 name = "ironflowx-codegen"
 version = "0.3.0"
-source = "git+https://github.com/ironflowx/foundation?rev=d840c6cb611d44c8b43140d7f8efb4a9a8f53f07#d840c6cb611d44c8b43140d7f8efb4a9a8f53f07"
+source = "git+https://github.com/ironflowx/foundation?rev=01b055fded1e6f6bbbc2015a2ea45856841fb8e0#01b055fded1e6f6bbbc2015a2ea45856841fb8e0"
 dependencies = [
  "jsonschema",
  "prost-reflect",
@@ -400,7 +400,7 @@ dependencies = [
 [[package]]
 name = "ironflowx-core"
 version = "0.3.0"
-source = "git+https://github.com/ironflowx/foundation?rev=d840c6cb611d44c8b43140d7f8efb4a9a8f53f07#d840c6cb611d44c8b43140d7f8efb4a9a8f53f07"
+source = "git+https://github.com/ironflowx/foundation?rev=01b055fded1e6f6bbbc2015a2ea45856841fb8e0#01b055fded1e6f6bbbc2015a2ea45856841fb8e0"
 dependencies = [
  "uuid",
  "zeroize",
@@ -409,7 +409,7 @@ dependencies = [
 [[package]]
 name = "ironflowx-events"
 version = "0.3.0"
-source = "git+https://github.com/ironflowx/foundation?rev=d840c6cb611d44c8b43140d7f8efb4a9a8f53f07#d840c6cb611d44c8b43140d7f8efb4a9a8f53f07"
+source = "git+https://github.com/ironflowx/foundation?rev=01b055fded1e6f6bbbc2015a2ea45856841fb8e0#01b055fded1e6f6bbbc2015a2ea45856841fb8e0"
 dependencies = [
  "ironflowx-core",
  "serde_core",
@@ -419,7 +419,7 @@ dependencies = [
 [[package]]
 name = "ironflowx-operations"
 version = "0.3.0"
-source = "git+https://github.com/ironflowx/foundation?rev=d840c6cb611d44c8b43140d7f8efb4a9a8f53f07#d840c6cb611d44c8b43140d7f8efb4a9a8f53f07"
+source = "git+https://github.com/ironflowx/foundation?rev=01b055fded1e6f6bbbc2015a2ea45856841fb8e0#01b055fded1e6f6bbbc2015a2ea45856841fb8e0"
 dependencies = [
  "getrandom 0.4.3",
  "ironflowx-authz",
@@ -435,7 +435,7 @@ dependencies = [
 [[package]]
 name = "ironflowx-proto"
 version = "0.3.0"
-source = "git+https://github.com/ironflowx/foundation?rev=d840c6cb611d44c8b43140d7f8efb4a9a8f53f07#d840c6cb611d44c8b43140d7f8efb4a9a8f53f07"
+source = "git+https://github.com/ironflowx/foundation?rev=01b055fded1e6f6bbbc2015a2ea45856841fb8e0#01b055fded1e6f6bbbc2015a2ea45856841fb8e0"
 dependencies = [
  "ironflowx-core",
 ]
@@ -443,7 +443,7 @@ dependencies = [
 [[package]]
 name = "ironflowx-store"
 version = "0.3.0"
-source = "git+https://github.com/ironflowx/foundation?rev=d840c6cb611d44c8b43140d7f8efb4a9a8f53f07#d840c6cb611d44c8b43140d7f8efb4a9a8f53f07"
+source = "git+https://github.com/ironflowx/foundation?rev=01b055fded1e6f6bbbc2015a2ea45856841fb8e0#01b055fded1e6f6bbbc2015a2ea45856841fb8e0"
 dependencies = [
  "ironflowx-authz",
  "ironflowx-core",
@@ -899,9 +899,9 @@ checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
 
 [[package]]
 name = "segment-log-core"
-version = "0.2.1"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e2fb95a43f63b09dc0456045577d076c12c60ea54594b8a2d05ac5f5d67f7527"
+checksum = "677f3cb9202ed7045635036aea6e8c90403f8577ed0edb6cb3443cb4b8415137"
 
 [[package]]
 name = "serde"

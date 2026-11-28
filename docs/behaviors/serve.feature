@@ -17,7 +17,7 @@ Feature: Serve: the host, the door and the wire
     And the data directory has mode "0700"
     And "admin.key" exists in the data directory with mode "0400"
     And the log names the path of "admin.key" and does not contain the key
-    And with the key in "admin.key", whoami names scopes "read", "write" and "admin"
+    And with the key in "admin.key", whoami names scopes "read", "write", "admin" and "execute"
 
   @HOST-002 @release-0.3
   Scenario: A second start writes no key and the first one still works
@@ -32,7 +32,7 @@ Feature: Serve: the host, the door and the wire
     Given a seed key made with "ironflowx seed generate"
     When the engine is served with the seed given <how>
     Then "admin.key" does not exist
-    And the seed key authenticates with scopes "read", "write" and "admin"
+    And the seed key authenticates with scopes "read", "write", "admin" and "execute"
 
     Examples:
       | how                                       |
@@ -68,7 +68,7 @@ Feature: Serve: the host, the door and the wire
     Given the engine is served and its bootstrap key revoked itself
     And "admin.key" was deleted
     When "ironflowx recover-key" runs on the data directory <with>
-    Then <where> holds a key that authenticates with scopes "read", "write" and "admin"
+    Then <where> holds a key that authenticates with scopes "read", "write", "admin" and "execute"
     And listing keys shows it with origin "recovered"
 
     Examples:

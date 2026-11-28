@@ -1129,6 +1129,7 @@ fn every_kind_is_one_envelope_and_one_exit_code() {
         (ErrorKind::Unknown, "unknown", false, 6),
         (ErrorKind::ResourceExhausted, "resource_exhausted", false, 7),
         (ErrorKind::Unavailable, "unavailable", true, 8),
+        (ErrorKind::Conflict, "conflict", false, 9),
     ] {
         for hint in [None, Some("do\nthis")] {
             served.answers(Err(OpError {

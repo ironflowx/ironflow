@@ -47,7 +47,10 @@ async fn admin(client: &Client, key: &Secret, id: KeyId) {
     let who = client.whoami(&call(key), WhoamiRequest {}).await;
     let who = expect_answer(who, "the expected key authenticates");
     assert_eq!(who.key_id, id);
-    assert_eq!(who.scopes, [Scope::Admin, Scope::Read, Scope::Write].into());
+    assert_eq!(
+        who.scopes,
+        [Scope::Admin, Scope::Read, Scope::Write, Scope::Execute].into()
+    );
 }
 
 async fn refused(client: &Client, key: &Secret) {
