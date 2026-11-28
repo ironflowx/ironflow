@@ -556,10 +556,22 @@ fn every_example(_: &mut Cli) {
         pointed(&mut w);
         bootstrap_key(&mut w);
         w.run(&format!("ironflowx {path} --json -"), &example.to_string());
-        if matches!(path, "events get" | "keys revoke") {
+        // An example that names an ID, a name or a lease no fresh engine has (foundation's
+        // architecture, "Proto"): the claim's names a function, but waits for none.
+        let absent = [
+            "events get",
+            "keys revoke",
+            "functions get",
+            "runs start",
+            "runs get",
+            "executions begin-step",
+            "executions complete-step",
+            "executions complete",
+        ];
+        if absent.contains(&path) {
             assert_eq!(w.ran().status.code(), Some(5), "{path}");
             assert_eq!(w.envelope()["code"], "not_found", "{path}");
-            if path == "keys revoke" {
+            if path != "events get" {
                 w.finish();
                 continue;
             }

@@ -22,9 +22,9 @@ use cucumber::feature::Ext as _;
 use cucumber::gherkin::{Feature, GherkinEnv};
 use cucumber::writer::Stats as _;
 use cucumber::{World, given, then, when};
-use ironflowx_cell::{Ledger, ManualClock, new_env_ref};
+use ironflowx_cell::{EventSubmission, Ledger, ManualClock, Submission, new_env_ref};
 use ironflowx_core::{EnvRef, ErrorKind, EventId, Scope, Secret, SubmitAs, Timestamp};
-use ironflowx_events::{Emit, Submission};
+use ironflowx_events::Emit;
 use ironflowx_operations::Engine;
 use ironflowx_proto::{
     Call, CreateKeyRequest, EmitBatchRequest, EmitBatchResponse, EmitRequest, EmitResponse, Event,
@@ -711,7 +711,7 @@ async fn foreign_cursor(w: &mut Env) {
             ..Emit::default()
         };
         ledger
-            .submit(Submission::Emit(emit), by.clone())
+            .submit(Submission::Events(EventSubmission::Emit(emit)), by.clone())
             .await
             .unwrap();
     }

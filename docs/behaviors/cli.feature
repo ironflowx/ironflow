@@ -107,16 +107,24 @@ Feature: CLI: generated commands, one envelope, and describe
     When "ironflowx describe" runs
     Then it exits with code 0
     And its operations are exactly:
-      | command            | scope   | changes_state |
-      | events emit        | write   | true          |
-      | events emit-batch  | write   | true          |
-      | events get         | read    | false         |
-      | events list        | read    | false         |
-      | keys create        | admin   | true          |
-      | keys list          | admin   | false         |
-      | keys revoke        | admin   | true          |
-      | environments list  | read    | false         |
-      | whoami             | any     | false         |
+      | command                  | scope   | changes_state |
+      | events emit              | write   | true          |
+      | events emit-batch        | write   | true          |
+      | events get               | read    | false         |
+      | events list              | read    | false         |
+      | keys create              | admin   | true          |
+      | keys list                | admin   | false         |
+      | keys revoke              | admin   | true          |
+      | environments list        | read    | false         |
+      | whoami                   | any     | false         |
+      | functions put            | write   | true          |
+      | functions get            | read    | false         |
+      | runs start               | write   | true          |
+      | runs get                 | read    | false         |
+      | executions claim         | execute | true          |
+      | executions begin-step    | execute | true          |
+      | executions complete-step | execute | true          |
+      | executions complete      | execute | true          |
 
   @CLI-009 @release-0.3 @door:cli
   Scenario: describe gives an operation's schemas and an example that works
