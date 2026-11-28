@@ -218,8 +218,15 @@ fn flags(command: &Command) -> impl Iterator<Item = &'static Field> {
     command.request.iter().filter(has_one)
 }
 
-/// The flag of `field`: what it parses to is the field, or an item of its list, in wire JSON.
+/// The flag of `field`: what it parses to is the field, or an item of its list, in wire JSON. A
+/// `bool` field's flag takes no value: given, it sends `true`, and absent, nothing, which the wire
+/// reads as false (docs/architecture.md, "CLI", Arguments).
 fn flag(command: &Command, field: &'static Field) -> Arg {
+    if is_switch(field) {
+        return Arg::new(field.name)
+            .long(&*field.name.replace('_', "-").leak())
+            .action(ArgAction::SetTrue);
+    }
     let refusal = command.refusal;
     let parse = move |text: &str| {
         let value = match (&field.kind, text.strip_prefix('@'), text.parse()) {
@@ -254,6 +261,11 @@ fn flag(command: &Command, field: &'static Field) -> Arg {
         .value_parser(parse)
 }
 
+/// Whether `field`'s flag is a switch: a single `bool`.
+const fn is_switch(field: &Field) -> bool {
+    matches!(field.kind, Kind::Bool) && !field.list
+}
+
 /// The field its flag's `values` set.
 fn set(field: &Field, mut values: Vec<Value>) -> Value {
     match field.list {
@@ -266,6 +278,10 @@ fn set(field: &Field, mut values: Vec<Value>) -> Value {
 fn request(command: &Command, matches: &ArgMatches) -> Result<String, OpError> {
     let Some(given) = matches.get_one::<String>("json") else {
         let given = flags(command).filter_map(|field| {
+            if is_switch(field) {
+                let on = matches.get_flag(field.name);
+                return on.then(|| (field.name.to_owned(), Value::Bool(true)));
+            }
             let values = matches.get_many(field.name)?.cloned().collect();
             Some((field.name.to_owned(), set(field, values)))
         });
@@ -1029,9 +1045,7 @@ mod tests {
             (&["--a-name", "@x"], json!({"a_name": "@x"})),
             (&["--a-name=-x"], json!({"a_name": "-x"})),
             (&["--a-name", "true"], json!({"a_name": "true"})),
-            (&["--on", "true"], json!({"on": true})),
-            (&["--on", "false"], json!({"on": false})),
-            (&["--on", "1"], json!({"on": "1"})),
+            (&["--on"], json!({"on": true})),
             (&["--names", "x"], json!({"names": ["x"]})),
             (
                 &["--names", "x", "--names", "y"],
@@ -1045,7 +1059,7 @@ mod tests {
                 json!({"texts": ["1", "-2"]}),
             ),
             (
-                &["--on", "true", "--a-name", "x", "--data", " [1] "],
+                &["--on", "--a-name", "x", "--data", " [1] "],
                 json!({"on": true, "a_name": "x", "data": " [1] "}),
             ),
         ] {
@@ -1057,6 +1071,12 @@ mod tests {
         }
         for (args, why) in [
             (&["--one", "x"][..], "unexpected argument '--one' found"),
+            // A switch takes no value.
+            (&["--on", "true"], "unexpected argument 'true' found"),
+            (
+                &["--on=false"],
+                "unexpected value 'false' for '--on' found; no more were expected",
+            ),
             (&["--items", "x"], "unexpected argument '--items' found"),
             (&["--a_name", "x"], "unexpected argument '--a_name' found"),
             (

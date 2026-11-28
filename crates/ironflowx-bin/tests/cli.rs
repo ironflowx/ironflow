@@ -1233,7 +1233,8 @@ fn a_usage_error_is_an_envelope() {
         (
             &[][..],
             "'ironflowx' requires a subcommand but one was not provided \
-             [subcommands: serve, recover-key, seed, version, describe, environments, events, whoami, keys]",
+             [subcommands: serve, recover-key, seed, version, describe, environments, events, runs, \
+             executions, functions, whoami, keys]",
         ),
         (
             &["seed"],

@@ -6,9 +6,12 @@ use std::time::Instant;
 
 use ironflowx_operations::{Engine, key_id};
 use ironflowx_proto::{
-    Call, CreateKeyRequest, CreatedKey, EmitBatchRequest, EmitBatchResponse, EmitRequest,
-    EmitResponse, Environment, Event, EventPage, GetEventRequest, KeyPage, ListEnvironmentsRequest,
-    ListEventsRequest, ListKeysRequest, OpError, Operation, Operations, RevokeKeyRequest, Whoami,
+    BeginStepRequest, BeginStepResponse, Call, Claim, ClaimRunRequest, CompleteRunRequest,
+    CompleteStepRequest, CompleteStepResponse, CreateKeyRequest, CreatedKey, EmitBatchRequest,
+    EmitBatchResponse, EmitRequest, EmitResponse, Environment, Event, EventPage, Function,
+    GetEventRequest, GetFunctionRequest, GetRunRequest, KeyPage, ListEnvironmentsRequest,
+    ListEventsRequest, ListKeysRequest, OpError, Operation, Operations, PutFunctionRequest,
+    PutFunctionResponse, RevokeKeyRequest, Run, RunEnd, StartRunRequest, StartRunResponse, Whoami,
     WhoamiRequest,
 };
 
@@ -101,6 +104,24 @@ impl Operations for Logged {
     logged!(create_key, CreateKey, CreateKeyRequest, CreatedKey);
     logged!(list_keys, ListKeys, ListKeysRequest, KeyPage);
     logged!(revoke_key, RevokeKey, RevokeKeyRequest, ());
+    logged!(
+        put_function,
+        PutFunction,
+        PutFunctionRequest,
+        PutFunctionResponse
+    );
+    logged!(get_function, GetFunction, GetFunctionRequest, Function);
+    logged!(start_run, StartRun, StartRunRequest, StartRunResponse);
+    logged!(get_run, GetRun, GetRunRequest, Run);
+    logged!(claim_run, ClaimRun, ClaimRunRequest, Option<Claim>);
+    logged!(begin_step, BeginStep, BeginStepRequest, BeginStepResponse);
+    logged!(
+        complete_step,
+        CompleteStep,
+        CompleteStepRequest,
+        CompleteStepResponse
+    );
+    logged!(complete_run, CompleteRun, CompleteRunRequest, RunEnd);
 }
 
 #[cfg(feature = "__fault-points")]

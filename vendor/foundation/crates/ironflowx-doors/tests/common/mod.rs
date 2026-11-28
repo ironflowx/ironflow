@@ -5,13 +5,18 @@ use std::net::SocketAddr;
 use std::sync::atomic::{AtomicBool, Ordering::Relaxed};
 use std::sync::{Arc, Mutex};
 
-use ironflowx_core::{Address, ErrorKind, KeyId, KeyOrigin, Scope, Secret, Timestamp};
+use ironflowx_core::{
+    Address, ErrorKind, KeyId, KeyOrigin, Lease, RunId, Scope, Secret, Timestamp,
+};
 use ironflowx_doors::{Readiness, Slot, WaitingOn, router};
 use ironflowx_proto::{
-    Call, CreateKeyRequest, CreatedKey, EmitBatchRequest, EmitBatchResponse, EmitRequest,
-    EmitResponse, Environment, Event, EventPage, GetEventRequest, KeyInfo, KeyPage, KeyStatus,
+    BeginStepRequest, BeginStepResponse, Call, Claim, ClaimRunRequest, CompleteRunRequest,
+    CompleteStepRequest, CompleteStepResponse, CreateKeyRequest, CreatedKey, EmitBatchRequest,
+    EmitBatchResponse, EmitRequest, EmitResponse, Environment, Event, EventPage, Function,
+    GetEventRequest, GetFunctionRequest, GetRunRequest, KeyInfo, KeyPage, KeyStatus,
     ListEnvironmentsRequest, ListEventsRequest, ListKeysRequest, OpError, Operations,
-    RevokeKeyRequest, Whoami, WhoamiRequest,
+    PutFunctionRequest, PutFunctionResponse, RevokeKeyRequest, Run, RunEnd, RunStatus,
+    StartRunRequest, StartRunResponse, Whoami, WhoamiRequest,
 };
 use tokio::net::TcpListener;
 
@@ -151,6 +156,91 @@ pub fn key_page() -> KeyPage {
     }
 }
 
+const RUN_ID: &str = "0190b5f0-0000-7000-8000-000000000006";
+
+fn run_id() -> RunId {
+    RUN_ID.parse().unwrap()
+}
+
+pub fn function() -> Function {
+    Function {
+        name: "charge".into(),
+        code: "v1.2_b-3".into(),
+        triggers: vec!["commande.passée".into(), "order.paid".into()],
+        max_attempts: Some(u32::MAX),
+        first_delay_seconds: None,
+        max_delay_seconds: Some(0),
+        put_at: Timestamp::from_millis(1_700_000_000_002),
+        put_by: "embedder:a b".parse().unwrap(),
+    }
+}
+
+pub fn put() -> PutFunctionResponse {
+    PutFunctionResponse {
+        function: function(),
+        changed: true,
+    }
+}
+
+pub fn started() -> StartRunResponse {
+    StartRunResponse {
+        run_id: run_id(),
+        duplicate: false,
+    }
+}
+
+pub fn run() -> Run {
+    Run {
+        run_id: run_id(),
+        function: "charge".into(),
+        code: "v1".into(),
+        status: RunStatus::Completed,
+        input: Some(DATA.into()),
+        created_at: Timestamp::from_millis(1_700_000_000_003),
+        created_by: format!("key:{}", &KEY[4..40]).parse().unwrap(),
+        due_at: Some(Timestamp::from_millis(1_700_000_000_004)),
+        execution: u32::MAX,
+        lease_until: Some(Timestamp::from_millis(1_700_000_000_005)),
+        steps: 1_000,
+        step: Some("réserve\u{1}".into()),
+        output: Some(METADATA.into()),
+        ended_at: Some(Timestamp::from_millis(1_700_000_000_006)),
+    }
+}
+
+pub fn claim() -> Option<Claim> {
+    Some(Claim {
+        lease: Lease {
+            run: run_id(),
+            execution: 7,
+        },
+        function: "charge".into(),
+        code: "v1".into(),
+        input: Some(DATA.into()),
+        lease_until: Timestamp::from_millis(1_700_000_000_007),
+        renew_after_seconds: 20,
+    })
+}
+
+pub fn begun() -> BeginStepResponse {
+    BeginStepResponse::Completed {
+        output: DATA.into(),
+    }
+}
+
+pub fn step_output() -> CompleteStepResponse {
+    CompleteStepResponse::Completed {
+        output: METADATA.into(),
+    }
+}
+
+pub fn run_end() -> RunEnd {
+    RunEnd {
+        run_id: run_id(),
+        status: RunStatus::Failed,
+    }
+}
+
 /// Records each call's key and request, then answers the error it was set to, or what its
 /// operation's function above does, a `whoami` what it was set to.
 pub struct Recording {
@@ -251,6 +341,54 @@ impl Operations for Recording {
         let page = self.page.lock().unwrap().clone();
         let answer = self.record(cx, req).await;
         answer.map(|_| page.unwrap_or_else(event_page))
+    }
+
+    async fn put_function(
+        &self,
+        cx: &Call,
+        req: PutFunctionRequest,
+    ) -> Result<PutFunctionResponse, OpError> {
+        self.record(cx, req).await.map(|_| put())
+    }
+
+    async fn get_function(&self, cx: &Call, req: GetFunctionRequest) -> Result<Function, OpError> {
+        self.record(cx, req).await.map(|_| function())
+    }
+
+    async fn start_run(
+        &self,
+        cx: &Call,
+        req: StartRunRequest,
+    ) -> Result<StartRunResponse, OpError> {
+        self.record(cx, req).await.map(|_| started())
+    }
+
+    async fn get_run(&self, cx: &Call, req: GetRunRequest) -> Result<Run, OpError> {
+        self.record(cx, req).await.map(|_| run())
+    }
+
+    async fn claim_run(&self, cx: &Call, req: ClaimRunRequest) -> Result<Option<Claim>, OpError> {
+        self.record(cx, req).await.map(|_| claim())
+    }
+
+    async fn begin_step(
+        &self,
+        cx: &Call,
+        req: BeginStepRequest,
+    ) -> Result<BeginStepResponse, OpError> {
+        self.record(cx, req).await.map(|_| begun())
+    }
+
+    async fn complete_step(
+        &self,
+        cx: &Call,
+        req: CompleteStepRequest,
+    ) -> Result<CompleteStepResponse, OpError> {
+        self.record(cx, req).await.map(|_| step_output())
+    }
+
+    async fn complete_run(&self, cx: &Call, req: CompleteRunRequest) -> Result<RunEnd, OpError> {
+        self.record(cx, req).await.map(|_| run_end())
     }
 }
 
