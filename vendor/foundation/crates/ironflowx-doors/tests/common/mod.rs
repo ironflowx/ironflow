@@ -5,7 +5,7 @@ use std::net::SocketAddr;
 use std::sync::atomic::{AtomicBool, Ordering::Relaxed};
 use std::sync::{Arc, Mutex};
 
-use ironflowx_core::{Address, ErrorKind, KeyOrigin, Scope, Secret, Timestamp};
+use ironflowx_core::{Address, ErrorKind, KeyId, KeyOrigin, Scope, Secret, Timestamp};
 use ironflowx_doors::{Readiness, Slot, WaitingOn, router};
 use ironflowx_proto::{
     Call, CreateKeyRequest, CreatedKey, EmitBatchRequest, EmitBatchResponse, EmitRequest,
@@ -20,7 +20,7 @@ pub const KEY: &str =
 
 pub fn whoami() -> Whoami {
     Whoami {
-        key_id: KEY[4..40].parse().unwrap(),
+        key_id: Some(KEY[4..40].parse().unwrap()),
         scopes: [Scope::Read, Scope::Admin].into(),
         environment: Address::new("default", "main"),
         expires_at: Some(Timestamp::from_millis(1_800_000_000_123)),
@@ -126,7 +126,7 @@ pub fn created() -> CreatedKey {
             label: Some("agent é".into()),
             scopes: [Scope::Read, Scope::Write].into(),
             origin: KeyOrigin::Created,
-            created_by: Some(KEY[4..40].parse().unwrap()),
+            created_by: Some(KEY[4..40].parse::<KeyId>().unwrap().into()),
             created_at: Timestamp::from_millis(1_700_000_000_001),
             expires_at: Some(Timestamp::from_millis(1_800_000_000_120)),
             status: KeyStatus::Active,

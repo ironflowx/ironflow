@@ -4,4 +4,4 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
-engine = { package = "ironflowx-cell", git = "https://github.com/ironflowx/foundation", rev = "74183efff1af20b16a275b0dc2f39d59bc40b58c" }
+engine = { package = "ironflowx-cell", git = "https://github.com/ironflowx/foundation", rev = "37c0e15992c8b91acfd0e0a63b0cf1efa56a18ef" }

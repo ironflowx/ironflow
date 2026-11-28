@@ -8,7 +8,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use cucumber::writer::Stats as _;
 use cucumber::{World, given, then, when};
 use ironflowx_cell::{HostClock, Ledger, ManualClock, new_env_ref};
-use ironflowx_core::{Clock as _, EnvRef, ErrorKind, KeyOrigin, Scope, Secret, Timestamp};
+use ironflowx_core::{Clock as _, EnvRef, ErrorKind, KeyId, KeyOrigin, Scope, Secret, Timestamp};
 use ironflowx_operations::{
     Engine, EngineError, Opened, RecoverError, SeedState, recover_admin_key,
 };
@@ -387,7 +387,7 @@ fn answer_names(w: &mut Tenancy, names: String, address: String) {
         .expect("whoami succeeds");
     let key = w.bootstrap_key.as_deref().unwrap();
     // The key's ID is its text between `ixk_` and the secret.
-    assert_eq!(me.key_id.to_string(), key[4..40]);
+    assert_eq!(me.key_id.unwrap().to_string(), key[4..40]);
     assert_eq!(me.scopes, scopes(&names));
     assert_eq!(me.environment.to_string(), address);
     assert_eq!(me.expires_at, None);
@@ -678,7 +678,7 @@ fn answer_names_expiry(w: &mut Tenancy, scope: String, address: String) {
         .unwrap()
         .as_ref()
         .expect("whoami succeeds");
-    assert_eq!(me.key_id.to_string(), w.key_id());
+    assert_eq!(me.key_id.unwrap().to_string(), w.key_id());
     assert_eq!(me.scopes, scopes(&scope));
     assert_eq!(me.environment.to_string(), address);
     assert_eq!(me.expires_at, w.client_expiry);
@@ -883,7 +883,7 @@ async fn listed_with(w: &mut Tenancy, label: String) {
         .iter()
         .find(|k| k.key_id == info.key_id)
         .expect("listed");
-    let bootstrap_id = w.bootstrap_key.as_deref().unwrap()[4..40].parse().unwrap();
+    let bootstrap_id: KeyId = w.bootstrap_key.as_deref().unwrap()[4..40].parse().unwrap();
     assert_eq!(listed.label.as_deref(), Some(label.as_str()));
     assert_eq!(listed.scopes, BTreeSet::from([Scope::Read, Scope::Write]));
     assert_eq!(
@@ -891,8 +891,12 @@ async fn listed_with(w: &mut Tenancy, label: String) {
         Some(Timestamp::from_millis(w.now().as_millis() + HOUR))
     );
     assert_eq!(
-        (listed.status, listed.origin, listed.created_by),
-        (KeyStatus::Active, KeyOrigin::Created, Some(bootstrap_id))
+        (listed.status, listed.origin, listed.created_by.clone()),
+        (
+            KeyStatus::Active,
+            KeyOrigin::Created,
+            Some(bootstrap_id.into())
+        )
     );
 }
 

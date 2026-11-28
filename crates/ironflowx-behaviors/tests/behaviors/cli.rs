@@ -679,7 +679,7 @@ async fn use_seed(w: &mut Cli) {
     let client = Client::new(&served.url()).unwrap();
     let cx = Call::with_key(Secret::new(key.to_owned()));
     let me = client.whoami(&cx, WhoamiRequest {}).await.unwrap();
-    assert_eq!(me.key_id.to_string(), seed["key_id"]);
+    assert_eq!(me.key_id.unwrap().to_string(), seed["key_id"]);
     assert!(me.scopes.contains(&Scope::Admin));
     served.stop(&dir, &w.audit);
 }
