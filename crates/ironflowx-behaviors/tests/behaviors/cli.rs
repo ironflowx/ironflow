@@ -651,7 +651,11 @@ fn every_example(_: &mut Cli) {
             "functions put" => requires(&output, &answer, "", &["function"]),
             "functions get" => requires(&output, &answer, "", &["put_at"]),
             "runs get" => requires(&output, &answer, "", &["created_at"]),
-            "executions begin-step" => assert_eq!(answer, json!({"run": {"attempt": 1}})),
+            "runs start" => requires(&output, &answer, "", &["run_id", "duplicate"]),
+            "executions begin-step" => {
+                requires(&output, &answer, "/run", &["attempt"]);
+                assert_eq!(answer, json!({"run": {"attempt": 1}}));
+            }
             "executions complete-step" => {
                 requires(&output, &answer, "/completed", &["output"]);
                 assert_eq!(answer, json!({"completed": {"output": 1}}));
