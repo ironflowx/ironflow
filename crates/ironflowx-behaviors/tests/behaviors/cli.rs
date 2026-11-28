@@ -573,6 +573,8 @@ fn every_example(_: &mut Cli) {
         assert!(output.is_valid(&answer), "{path}: output fails its schema");
         match path {
             "events get" => requires(&output, &answer, "", &["data", "time"]),
+            // A door's whoami always names its key: only an embedder's call has none (D121).
+            "whoami" => requires(&output, &answer, "", &["key_id"]),
             "keys create" => {
                 requires(&output, &answer, "", &["info"]);
                 requires(&output, &answer, "/info", &["created_at"]);
@@ -679,7 +681,7 @@ async fn use_seed(w: &mut Cli) {
     let client = Client::new(&served.url()).unwrap();
     let cx = Call::with_key(Secret::new(key.to_owned()));
     let me = client.whoami(&cx, WhoamiRequest {}).await.unwrap();
-    assert_eq!(me.key_id.to_string(), seed["key_id"]);
+    assert_eq!(me.key_id.unwrap().to_string(), seed["key_id"]);
     assert!(me.scopes.contains(&Scope::Admin));
     served.stop(&dir, &w.audit);
 }

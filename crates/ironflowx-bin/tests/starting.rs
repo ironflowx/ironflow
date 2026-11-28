@@ -101,7 +101,7 @@ async fn the_slot_answers_until_the_engine_is_open_and_the_key_is_written() {
     assert!(ready.starts_with("HTTP/1.0 200 "), "{ready}");
     let call = Call::with_key(Secret::new(key.trim_end().to_owned()));
     let me = client.whoami(&call, WhoamiRequest {}).await.unwrap();
-    assert_eq!(me.key_id.to_string(), key[4..40]);
+    assert_eq!(me.key_id.unwrap().to_string(), key[4..40]);
     host.abort();
 
     // Another's `admin.key` appears while the engine opens: it is kept, and the host gives up.

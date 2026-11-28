@@ -546,7 +546,7 @@ async fn key_scopes(w: &mut Serve) {
     let cx = Call::with_key(Secret::new(w.key().to_owned()));
     let me = client.whoami(&cx, ironflowx_proto::WhoamiRequest {}).await;
     let me = me.unwrap();
-    assert_eq!(me.key_id.to_string(), w.key()[4..40]);
+    assert_eq!(me.key_id.unwrap().to_string(), w.key()[4..40]);
     let all = [Scope::Read, Scope::Write, Scope::Admin, Scope::Execute];
     assert_eq!(me.scopes, all.into());
     assert_eq!(me.expires_at, None);
@@ -601,7 +601,7 @@ async fn over_protocol(w: &mut Serve, protocol: String) {
 #[then("the call succeeds and names the admin key's ID")]
 fn names_the_key(w: &mut Serve) {
     let answer = w.answered().as_ref().expect("the call succeeds");
-    assert_eq!(answer.key_id, w.key()[4..40]);
+    assert_eq!(answer.key_id.as_ref().unwrap().to_string(), w.key()[4..40]);
 }
 
 #[then(expr = "the call is refused as unauthenticated with {string}")]
@@ -935,7 +935,7 @@ async fn authenticates(w: &mut Serve) {
         .whoami(&cx, ironflowx_proto::WhoamiRequest {})
         .await
         .unwrap();
-    assert_eq!(me.key_id.to_string(), key[4..40]);
+    assert_eq!(me.key_id.unwrap().to_string(), key[4..40]);
     assert_eq!(
         me.scopes,
         [Scope::Read, Scope::Write, Scope::Admin, Scope::Execute].into()

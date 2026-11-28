@@ -185,7 +185,7 @@ fn the_first_start_writes_the_key_and_a_later_one_keeps_what_is_there() {
     let me = runtime
         .block_on(client.whoami(&cx, WhoamiRequest {}))
         .unwrap();
-    assert_eq!(me.key_id.to_string(), key[4..40]);
+    assert_eq!(me.key_id.unwrap().to_string(), key[4..40]);
     served.stop();
     assert!(!key_file.exists());
 }
@@ -391,7 +391,7 @@ async fn one_client_gets_each_keys_own_answer_and_no_key_is_kept() {
             (call(&admin), Ok(&admin[4..40]), Ok(())),
         ] {
             let me = client.whoami(&cx, WhoamiRequest {}).await;
-            let me = me.map(|me| me.key_id.to_string());
+            let me = me.map(|me| me.key_id.unwrap().to_string());
             assert_eq!(me, whoami.map(str::to_owned));
             let listed = client.list_keys(&cx, ListKeysRequest::default()).await;
             assert_eq!(listed.as_ref().map(|_| ()).map_err(Clone::clone), keys);
@@ -600,7 +600,7 @@ async fn generated_seeds_authenticate_without_creating_a_key_file() {
         let client = Client::new(&format!("http://{}", served.addr)).unwrap();
         let cx = Call::with_key(Secret::new(key.to_owned()));
         let me = client.whoami(&cx, WhoamiRequest {}).await.unwrap();
-        assert_eq!(me.key_id.to_string(), seed["key_id"]);
+        assert_eq!(me.key_id.unwrap().to_string(), seed["key_id"]);
         assert_eq!(
             me.scopes,
             [Scope::Read, Scope::Write, Scope::Admin, Scope::Execute].into()
