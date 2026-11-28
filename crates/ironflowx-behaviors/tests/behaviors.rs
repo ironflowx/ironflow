@@ -83,7 +83,7 @@ fn request(name: impl Into<String>) -> EmitRequest {
 }
 
 fn all_scopes() -> BTreeSet<Scope> {
-    BTreeSet::from([Scope::Read, Scope::Write, Scope::Admin])
+    BTreeSet::from([Scope::Read, Scope::Write, Scope::Admin, Scope::Execute])
 }
 
 impl Env {
@@ -115,7 +115,7 @@ impl Env {
         self.client.as_ref().expect("a client")
     }
 
-    /// Whoever a step names: the other client, which holds another key with all three scopes,
+    /// Whoever a step names: the other client, which holds another key with all four scopes,
     /// or the client.
     async fn reader(&self, other: &str) -> &Call {
         if other.is_empty() {

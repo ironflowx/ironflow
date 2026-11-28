@@ -537,7 +537,9 @@ fn log_names(w: &mut Serve, name: String) {
     w.audit.check(log.as_bytes(), "bootstrap log");
 }
 
-#[then(regex = r#"^with the key in "admin.key", whoami names scopes "read", "write" and "admin"$"#)]
+#[then(
+    regex = r#"^with the key in "admin.key", whoami names scopes "read", "write", "admin" and "execute"$"#
+)]
 async fn key_scopes(w: &mut Serve) {
     w.read_key();
     let client = Client::new(&w.served().url()).unwrap();
@@ -545,7 +547,7 @@ async fn key_scopes(w: &mut Serve) {
     let me = client.whoami(&cx, ironflowx_proto::WhoamiRequest {}).await;
     let me = me.unwrap();
     assert_eq!(me.key_id.to_string(), w.key()[4..40]);
-    let all = [Scope::Read, Scope::Write, Scope::Admin];
+    let all = [Scope::Read, Scope::Write, Scope::Admin, Scope::Execute];
     assert_eq!(me.scopes, all.into());
     assert_eq!(me.expires_at, None);
     // The log, once it is whole.
@@ -924,7 +926,7 @@ fn no_key_file(w: &mut Serve) {
 }
 
 #[then("the kept key still authenticates")]
-#[then(r#"the seed key authenticates with scopes "read", "write" and "admin""#)]
+#[then(r#"the seed key authenticates with scopes "read", "write", "admin" and "execute""#)]
 async fn authenticates(w: &mut Serve) {
     let client = Client::new(&w.served().url()).unwrap();
     let key = w.seed.as_deref().or(w.key.as_deref()).unwrap();
@@ -934,7 +936,10 @@ async fn authenticates(w: &mut Serve) {
         .await
         .unwrap();
     assert_eq!(me.key_id.to_string(), key[4..40]);
-    assert_eq!(me.scopes, [Scope::Read, Scope::Write, Scope::Admin].into());
+    assert_eq!(
+        me.scopes,
+        [Scope::Read, Scope::Write, Scope::Admin, Scope::Execute].into()
+    );
 }
 
 #[given("the engine is served and its bootstrap key revoked itself")]
@@ -975,12 +980,12 @@ fn recover(w: &mut Serve, stdout: bool) {
     w.recovery = Some(out);
 }
 
-#[then(r#""admin.key", with mode "0400", holds a key that authenticates with scopes "read", "write" and "admin""#)]
+#[then(r#""admin.key", with mode "0400", holds a key that authenticates with scopes "read", "write", "admin" and "execute""#)]
 async fn recovered_file(w: &mut Serve) {
     check_recovery(w, false).await;
 }
 
-#[then(r#"the "key" field of its JSON output holds a key that authenticates with scopes "read", "write" and "admin""#)]
+#[then(r#"the "key" field of its JSON output holds a key that authenticates with scopes "read", "write", "admin" and "execute""#)]
 async fn recovered_stdout(w: &mut Serve) {
     check_recovery(w, true).await;
 }
@@ -1171,7 +1176,7 @@ async fn different_format(w: &mut Serve) {
     std::fs::create_dir(dir.join("ledgers")).unwrap();
     let control = dir.join("control.db");
     let db = rusqlite::Connection::open(&control).unwrap();
-    db.execute_batch("UPDATE meta SET format = 2").unwrap();
+    db.execute_batch("UPDATE meta SET format = 1").unwrap();
     drop(db);
     w.control_before = Some(std::fs::read(control).unwrap());
 }

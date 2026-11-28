@@ -9,7 +9,7 @@ The engine itself, with its ledger, credentials, control plane, wire, HTTP door 
 ## What it does
 
 - The first `serve` bootstraps the engine and writes the admin key to `admin.key`, or takes the key you supply as a seed.
-- Create keys scoped `read`, `write` or `admin`, read-only unless asked otherwise, with an optional expiry; list them, and revoke one.
+- Create keys scoped `read`, `write`, `admin` or `execute`, read-only unless asked otherwise, with an optional expiry; list them, and revoke one.
 - Emit an event, or a batch of up to 100, with data, metadata, a version and an idempotency key; each records the key that emitted it.
 - Read an event by ID, or list events newest first, as soon as any emit returns.
 - The CLI prints JSON and exit codes an agent branches on, and `describe` gives each operation's input and output schemas and a runnable example, offline.
@@ -48,7 +48,7 @@ All three are unpublished. The design is in [`docs/architecture.md`](docs/archit
 
 Foundation is a git dependency pinned to one commit in the root `Cargo.toml`, and CI tests that pin. When foundation 0.4.0 is on crates.io, with `ironflowx-doors` and `ironflowx-codegen` published for the first time, a release here depends on crates.io versions only. The binary carries foundation's release number until 1.0.0; the next release here is `v0.4.0`, built on foundation 0.4.0.
 
-A change that touches both repositories lands as two PRs: first foundation, then the pin bump here. To bump the pin, replace the commit in the root `Cargo.toml`, `ci/fixtures/engine-dep/Cargo.toml` and `ci/fixtures/engine-dep/renamed/Cargo.toml`, and run `cargo update -p ironflowx-core` (any one foundation crate; they move together) at the root and in `ci/fixtures/engine-dep/`. Refresh `vendor/foundation/` from foundation at the new commit, and run `ci/vendored.sh`. Leave the links in `docs/` alone: they name the commit the docs were copied from.
+A change that touches both repositories lands as two PRs: first foundation, then the pin bump here. To bump the pin, replace the commit in the root `Cargo.toml`, `ci/fixtures/engine-dep/Cargo.toml` and `ci/fixtures/engine-dep/renamed/Cargo.toml`, and run `cargo update -p ironflowx-core` (any one foundation crate; they move together) at the root and in `ci/fixtures/engine-dep/`. Refresh `vendor/foundation/` from foundation at the new commit, and run `ci/vendored.sh`. Leave the links in `docs/` alone: they name the commit the docs were copied from. The exception is the links to foundation's Errors section, which name the commit that last changed the error kinds: move them when the kinds change.
 
 ### Working on foundation too
 

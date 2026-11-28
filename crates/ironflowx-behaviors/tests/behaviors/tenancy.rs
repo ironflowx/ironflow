@@ -1194,7 +1194,7 @@ async fn reopened_with(w: &mut Tenancy, which: String) {
 #[then(regex = r"^key (A|B) authenticates as an admin key$")]
 async fn authenticates_as_admin(w: &mut Tenancy, name: String) {
     let me = w.whoami_with(&name).await.expect("an admin key");
-    let every = [Scope::Read, Scope::Write, Scope::Admin];
+    let every = [Scope::Read, Scope::Write, Scope::Admin, Scope::Execute];
     assert_eq!(me.scopes, BTreeSet::from(every));
     let req = ListKeysRequest::default();
     let listed = w.engine().list_keys(&call(w.text(&name)), req).await;

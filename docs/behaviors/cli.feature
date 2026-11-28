@@ -142,6 +142,7 @@ Feature: CLI: generated commands, one envelope, and describe
       | 6    | unknown            | false     |
       | 7    | resource_exhausted | false     |
       | 8    | unavailable        | true      |
+      | 9    | conflict           | false     |
 
   # ---- Seeds, version ----
 

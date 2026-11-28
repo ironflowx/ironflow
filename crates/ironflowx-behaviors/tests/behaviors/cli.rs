@@ -347,7 +347,7 @@ fn one_envelope(w: &mut Cli, code: String, retryable: bool) {
 }
 
 /// Of a failure, which printed an envelope.
-#[then(regex = r"^it exits with code ([1-8])$")]
+#[then(regex = r"^it exits with code ([1-9])$")]
 fn exits(w: &mut Cli, code: i32) {
     assert_eq!(w.ran().status.code(), Some(code));
 }
@@ -374,7 +374,7 @@ fn names(w: &mut Cli, exit: i32, code: String, named: String) {
 fn names_the_key(w: &mut Cli) {
     let expected = json!({
         "key_id": w.key()[4..40],
-        "scopes": ["read", "write", "admin"],
+        "scopes": ["read", "write", "admin", "execute"],
         "environment": "default/default",
     });
     assert_eq!(w.answer(), expected);
@@ -607,7 +607,7 @@ fn input_edges(_: &mut Cli) {
             "keys create",
             [
                 json!({"scopes": []}),
-                json!({"scopes": ["read", "write", "admin"]}),
+                json!({"scopes": ["read", "write", "admin", "execute"]}),
             ],
             [json!({"scopes": ["owner"]}), json!({"scopes": ["READ"]})],
         ),

@@ -13,14 +13,14 @@ Feature: Tenancy: bootstrap, keys and scopes
   Scenario: The first open creates the default environment and returns the bootstrap key
     When the engine is opened
     Then exactly one key is returned
-    And with it, whoami names scopes "read", "write" and "admin" and environment "default/default"
+    And with it, whoami names scopes "read", "write", "admin" and "execute" and environment "default/default"
     And listing environments shows one environment, named "default"
 
   @ACC-002 @release-0.2
   Scenario: The bootstrap key says who it is
     Given a client with the bootstrap key
     When the client asks whoami
-    Then the answer names the key's ID, scopes "read", "write" and "admin", environment "default/default" and no expiry
+    Then the answer names the key's ID, scopes "read", "write", "admin" and "execute", environment "default/default" and no expiry
 
   @ACC-003 @release-0.2 @local
   Scenario: A second open creates nothing and returns no key
@@ -34,7 +34,7 @@ Feature: Tenancy: bootstrap, keys and scopes
   Scenario: A seed becomes the bootstrap key and no key is returned
     When the engine is opened with a seed key
     Then no key is returned and the open reports the seed as current
-    And the seed key authenticates with scopes "read", "write" and "admin"
+    And the seed key authenticates with scopes "read", "write", "admin" and "execute"
 
   @ACC-005 @release-0.2 @local
   Scenario: A seed with a new key ID rotates the seeded key
@@ -113,7 +113,7 @@ Feature: Tenancy: bootstrap, keys and scopes
   Scenario: A lost admin key is recovered from the data directory
     Given a client with the bootstrap key revoked the bootstrap key
     When an admin key is recovered from the engine directory
-    Then the recovered key authenticates with scopes "read", "write" and "admin"
+    Then the recovered key authenticates with scopes "read", "write", "admin" and "execute"
     And listing keys shows it with origin "recovered" and label "recovered"
     And the revoked bootstrap key is still refused
 

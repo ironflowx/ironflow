@@ -81,7 +81,7 @@ def main():
                          "--key-file", data / "admin.key"],
                         env={**env, "SSL_CERT_FILE": str(cert)}, timeout=10,
                     )
-                    if sorted(json.loads(answer)["scopes"]) != ["admin", "read", "write"]:
+                    if sorted(json.loads(answer)["scopes"]) != ["admin", "execute", "read", "write"]:
                         sys.exit("archive's HTTPS whoami did not authenticate as admin")
                     print("archive's HTTPS whoami authenticated as admin")
                 finally:

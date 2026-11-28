@@ -5,12 +5,12 @@ members = ["direct", "renamed", "optional", "target-only", "at-build", "through"
 
 # Foundation at the commit the root Cargo.toml pins.
 [workspace.dependencies]
-ironflowx = { git = "https://github.com/ironflowx/foundation", rev = "d840c6cb611d44c8b43140d7f8efb4a9a8f53f07" }
-ironflowx-authz = { git = "https://github.com/ironflowx/foundation", rev = "d840c6cb611d44c8b43140d7f8efb4a9a8f53f07" }
-ironflowx-cell = { git = "https://github.com/ironflowx/foundation", rev = "d840c6cb611d44c8b43140d7f8efb4a9a8f53f07" }
-ironflowx-codegen = { git = "https://github.com/ironflowx/foundation", rev = "d840c6cb611d44c8b43140d7f8efb4a9a8f53f07" }
-ironflowx-core = { git = "https://github.com/ironflowx/foundation", rev = "d840c6cb611d44c8b43140d7f8efb4a9a8f53f07" }
-ironflowx-events = { git = "https://github.com/ironflowx/foundation", rev = "d840c6cb611d44c8b43140d7f8efb4a9a8f53f07" }
-ironflowx-operations = { git = "https://github.com/ironflowx/foundation", rev = "d840c6cb611d44c8b43140d7f8efb4a9a8f53f07" }
-ironflowx-proto = { git = "https://github.com/ironflowx/foundation", rev = "d840c6cb611d44c8b43140d7f8efb4a9a8f53f07" }
-ironflowx-store = { git = "https://github.com/ironflowx/foundation", rev = "d840c6cb611d44c8b43140d7f8efb4a9a8f53f07" }
+ironflowx = { git = "https://github.com/ironflowx/foundation", rev = "74183efff1af20b16a275b0dc2f39d59bc40b58c" }
+ironflowx-authz = { git = "https://github.com/ironflowx/foundation", rev = "74183efff1af20b16a275b0dc2f39d59bc40b58c" }
+ironflowx-cell = { git = "https://github.com/ironflowx/foundation", rev = "74183efff1af20b16a275b0dc2f39d59bc40b58c" }
+ironflowx-codegen = { git = "https://github.com/ironflowx/foundation", rev = "74183efff1af20b16a275b0dc2f39d59bc40b58c" }
+ironflowx-core = { git = "https://github.com/ironflowx/foundation", rev = "74183efff1af20b16a275b0dc2f39d59bc40b58c" }
+ironflowx-events = { git = "https://github.com/ironflowx/foundation", rev = "74183efff1af20b16a275b0dc2f39d59bc40b58c" }
+ironflowx-operations = { git = "https://github.com/ironflowx/foundation", rev = "74183efff1af20b16a275b0dc2f39d59bc40b58c" }
+ironflowx-proto = { git = "https://github.com/ironflowx/foundation", rev = "74183efff1af20b16a275b0dc2f39d59bc40b58c" }
+ironflowx-store = { git = "https://github.com/ironflowx/foundation", rev = "74183efff1af20b16a275b0dc2f39d59bc40b58c" }

@@ -487,3 +487,48 @@ async fn the_largest_page_of_events_fits() {
     let rest = client_of_ours.list_events(&cx, rest).await.unwrap();
     assert_eq!((&rest.events[..], rest.next), (&page.events[198..], None));
 }
+
+/// D107, through the CLI: `keys create --scopes execute` makes a key that holds `execute` alone;
+/// `whoami` shows it; an emit and a read are refused, each hint naming the scope they need.
+#[tokio::test(flavor = "multi_thread")]
+async fn a_key_made_with_execute_holds_it_alone() {
+    let dir = tempfile::tempdir().unwrap();
+    let opened = Engine::open(dir.path(), clock(), None).await;
+    let Opened { engine, minted, .. } = opened.unwrap();
+    let admin = minted.unwrap().expose().to_owned();
+    let addr = serve(Arc::new(engine)).await;
+    let run = |key: &str, args: &[&str]| {
+        let mut command = Command::new(env!("CARGO_BIN_EXE_ironflowx"));
+        command
+            .args(args)
+            .env("IRONFLOWX_URL", format!("http://{addr}"))
+            .env("IRONFLOWX_KEY", key);
+        tokio::task::block_in_place(|| command.output()).unwrap()
+    };
+    let json = |bytes: &[u8]| serde_json::from_slice::<serde_json::Value>(bytes).unwrap();
+    let out = run(&admin, &["keys", "create", "--scopes", "execute"]);
+    assert_eq!((out.status.code(), &*out.stderr), (Some(0), &b""[..]));
+    let created = json(&out.stdout);
+    assert_eq!(created["info"]["scopes"], serde_json::json!(["execute"]));
+    let key = created["key"].as_str().expect("the new key");
+    let out = run(key, &["whoami"]);
+    assert_eq!((out.status.code(), &*out.stderr), (Some(0), &b""[..]));
+    assert_eq!(json(&out.stdout)["scopes"], serde_json::json!(["execute"]));
+    for (args, scope) in [
+        (&["events", "emit", "--name", "order.placed"][..], "write"),
+        (&["events", "list"][..], "read"),
+    ] {
+        let out = run(key, args);
+        let expected = serde_json::json!({
+            "code": "permission_denied",
+            "message": format!("missing scope: {scope}"),
+            "retryable": false,
+            "hint": format!("create a key with scope {scope}, or use one that has it"),
+        });
+        assert_eq!(
+            (out.status.code(), &*out.stdout, json(&out.stderr)),
+            (Some(4), &b""[..], expected),
+            "{args:?}"
+        );
+    }
+}
