@@ -532,6 +532,64 @@ fn requires(output: &jsonschema::Validator, answer: &Value, parent: &str, fields
     }
 }
 
+/// Calls `path` on what a fresh engine lacks for its example: an event, a function, a run, or a
+/// claimed run and its open step. The answer is `w`'s last run.
+fn real(w: &mut Cli, path: &str) {
+    let ok = |w: &mut Cli, line: &str| {
+        w.run(line, "");
+        w.succeeded()
+    };
+    if path == "events get" {
+        let emitted = ok(w, "ironflowx events emit --name describe.probe");
+        let id = emitted["event_id"].as_str().unwrap().to_owned();
+        w.run(&format!("ironflowx events get --event-id {id}"), "");
+        return;
+    }
+    ok(w, "ironflowx functions put --name refund --code v1");
+    if path == "functions get" {
+        w.run("ironflowx functions get --name refund", "");
+        return;
+    }
+    if path == "runs start" {
+        w.run("ironflowx runs start --function refund", "");
+        return;
+    }
+    let started = ok(w, "ironflowx runs start --function refund");
+    let run_id = started["run_id"].as_str().unwrap().to_owned();
+    if path == "runs get" {
+        w.run(&format!("ironflowx runs get --run-id {run_id}"), "");
+        return;
+    }
+    let claimed = ok(
+        w,
+        "ironflowx executions claim --functions refund@v1 --wait-seconds 0",
+    );
+    // A claim that took a run, against the claim's own schema.
+    let mut d = Cli::new();
+    d.run("ironflowx describe executions claim", "");
+    let claim_output = schema(&d.succeeded()["output"]);
+    assert!(claim_output.is_valid(&claimed), "{claimed}");
+    requires(&claim_output, &claimed, "/claim", &["lease_until"]);
+    let lease = claimed["claim"]["lease"].as_str().unwrap().to_owned();
+    assert_eq!(lease, format!("{run_id}.1"));
+    let begin = format!("ironflowx executions begin-step --lease {lease} --position 1 --name pay");
+    if path == "executions begin-step" {
+        w.run(&begin, "");
+        return;
+    }
+    if path == "executions complete-step" {
+        ok(w, &begin);
+        let complete = format!("ironflowx executions complete-step --lease {lease} --position 1");
+        w.run(&format!("{complete} --output 1"), "");
+        return;
+    }
+    assert_eq!(path, "executions complete");
+    w.run(
+        &format!("ironflowx executions complete --lease {lease} --steps 0"),
+        "",
+    );
+}
+
 /// SRV-12: what is advertised is what a real engine accepts and the CLI prints.
 #[then("every described example works against a fresh engine with the bootstrap key")]
 fn every_example(_: &mut Cli) {
@@ -571,15 +629,13 @@ fn every_example(_: &mut Cli) {
         if absent.contains(&path) {
             assert_eq!(w.ran().status.code(), Some(5), "{path}");
             assert_eq!(w.envelope()["code"], "not_found", "{path}");
-            if path != "events get" {
+            if path == "keys revoke" {
                 w.finish();
                 continue;
             }
-            // The advertised ID is absent. Read a real event to exercise the answer schema.
-            w.run("ironflowx events emit --name describe.probe", "");
-            let emitted = w.succeeded();
-            let id = emitted["event_id"].as_str().unwrap();
-            w.run(&format!("ironflowx events get --event-id {id}"), "");
+            // What the example names is absent. Make it, then call the command on it, to
+            // exercise the answer schema.
+            real(&mut w, path);
         }
         let answer = w.succeeded();
         assert!(output.is_valid(&answer), "{path}: output fails its schema");
@@ -592,6 +648,18 @@ fn every_example(_: &mut Cli) {
                 requires(&output, &answer, "/info", &["created_at"]);
             }
             "environments list" => requires(&output, &answer, "/environments/0", &["created_at"]),
+            "functions put" => requires(&output, &answer, "", &["function"]),
+            "functions get" => requires(&output, &answer, "", &["put_at"]),
+            "runs get" => requires(&output, &answer, "", &["created_at"]),
+            "executions begin-step" => assert_eq!(answer, json!({"run": {"attempt": 1}})),
+            "executions complete-step" => {
+                requires(&output, &answer, "/completed", &["output"]);
+                assert_eq!(answer, json!({"completed": {"output": 1}}));
+            }
+            "executions complete" => {
+                requires(&output, &answer, "", &["ended"]);
+                requires(&output, &answer, "/ended", &["run"]);
+            }
             // A fresh engine has no run due: the claim is empty, and waits for none.
             "executions claim" => assert_eq!(answer, json!({}), "{path}"),
             "events emit-batch" => {
