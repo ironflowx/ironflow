@@ -592,6 +592,8 @@ fn every_example(_: &mut Cli) {
                 requires(&output, &answer, "/info", &["created_at"]);
             }
             "environments list" => requires(&output, &answer, "/environments/0", &["created_at"]),
+            // A fresh engine has no run due: the claim is empty, and waits for none.
+            "executions claim" => assert_eq!(answer, json!({}), "{path}"),
             "events emit-batch" => {
                 let items = answer["items"].as_array().unwrap();
                 assert_eq!(items.len(), example["items"].as_array().unwrap().len());
