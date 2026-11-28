@@ -548,7 +548,7 @@ fn what_is_no_request_is_a_usage_error() {
         ),
         (
             vec!["keys", "create", "--scopes", "read", "--scopes", "reed"],
-            invalid("a scope is read, write or admin"),
+            invalid("a scope is read, write, admin or execute"),
         ),
         (
             emit(&["--name", "a", "--name", "b"]),

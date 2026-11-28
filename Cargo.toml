@@ -13,15 +13,15 @@ license = "MIT"
 # gitignored .cargo/config.toml (README.md, "Working on foundation too"). When foundation 0.4.0 is
 # on crates.io, these become its versions.
 [workspace.dependencies]
-ironflowx-authz = { git = "https://github.com/ironflowx/foundation", rev = "01b055fded1e6f6bbbc2015a2ea45856841fb8e0" }
-ironflowx-cell = { git = "https://github.com/ironflowx/foundation", rev = "01b055fded1e6f6bbbc2015a2ea45856841fb8e0" }
-ironflowx-codegen = { git = "https://github.com/ironflowx/foundation", rev = "01b055fded1e6f6bbbc2015a2ea45856841fb8e0" }
-ironflowx-core = { git = "https://github.com/ironflowx/foundation", rev = "01b055fded1e6f6bbbc2015a2ea45856841fb8e0" }
-ironflowx-doors = { git = "https://github.com/ironflowx/foundation", rev = "01b055fded1e6f6bbbc2015a2ea45856841fb8e0" }
-ironflowx-events = { git = "https://github.com/ironflowx/foundation", rev = "01b055fded1e6f6bbbc2015a2ea45856841fb8e0" }
-ironflowx-operations = { git = "https://github.com/ironflowx/foundation", rev = "01b055fded1e6f6bbbc2015a2ea45856841fb8e0" }
-ironflowx-proto = { git = "https://github.com/ironflowx/foundation", rev = "01b055fded1e6f6bbbc2015a2ea45856841fb8e0" }
-ironflowx-store = { git = "https://github.com/ironflowx/foundation", rev = "01b055fded1e6f6bbbc2015a2ea45856841fb8e0" }
+ironflowx-authz = { git = "https://github.com/ironflowx/foundation", rev = "e20948dd7b9306bb88895428a5b531b2b7ad73b3" }
+ironflowx-cell = { git = "https://github.com/ironflowx/foundation", rev = "e20948dd7b9306bb88895428a5b531b2b7ad73b3" }
+ironflowx-codegen = { git = "https://github.com/ironflowx/foundation", rev = "e20948dd7b9306bb88895428a5b531b2b7ad73b3" }
+ironflowx-core = { git = "https://github.com/ironflowx/foundation", rev = "e20948dd7b9306bb88895428a5b531b2b7ad73b3" }
+ironflowx-doors = { git = "https://github.com/ironflowx/foundation", rev = "e20948dd7b9306bb88895428a5b531b2b7ad73b3" }
+ironflowx-events = { git = "https://github.com/ironflowx/foundation", rev = "e20948dd7b9306bb88895428a5b531b2b7ad73b3" }
+ironflowx-operations = { git = "https://github.com/ironflowx/foundation", rev = "e20948dd7b9306bb88895428a5b531b2b7ad73b3" }
+ironflowx-proto = { git = "https://github.com/ironflowx/foundation", rev = "e20948dd7b9306bb88895428a5b531b2b7ad73b3" }
+ironflowx-store = { git = "https://github.com/ironflowx/foundation", rev = "e20948dd7b9306bb88895428a5b531b2b7ad73b3" }
 # Event rules parse JSON with a visitor (foundation D12); no derive, no preserve_order.
 serde_core = { version = "1.0.229", default-features = false, features = ["std"] }
 # Exact, as foundation pins it: the 127-depth rule relies on serde_json's internal recursion limit.

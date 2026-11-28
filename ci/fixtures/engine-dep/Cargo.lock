@@ -354,7 +354,7 @@ dependencies = [
 [[package]]
 name = "ironflowx"
 version = "0.3.0"
-source = "git+https://github.com/ironflowx/foundation?rev=01b055fded1e6f6bbbc2015a2ea45856841fb8e0#01b055fded1e6f6bbbc2015a2ea45856841fb8e0"
+source = "git+https://github.com/ironflowx/foundation?rev=e20948dd7b9306bb88895428a5b531b2b7ad73b3#e20948dd7b9306bb88895428a5b531b2b7ad73b3"
 dependencies = [
  "ironflowx-cell",
  "ironflowx-core",
@@ -365,7 +365,7 @@ dependencies = [
 [[package]]
 name = "ironflowx-authz"
 version = "0.3.0"
-source = "git+https://github.com/ironflowx/foundation?rev=01b055fded1e6f6bbbc2015a2ea45856841fb8e0#01b055fded1e6f6bbbc2015a2ea45856841fb8e0"
+source = "git+https://github.com/ironflowx/foundation?rev=e20948dd7b9306bb88895428a5b531b2b7ad73b3#e20948dd7b9306bb88895428a5b531b2b7ad73b3"
 dependencies = [
  "base64 0.23.1",
  "ironflowx-core",
@@ -376,7 +376,7 @@ dependencies = [
 [[package]]
 name = "ironflowx-cell"
 version = "0.3.0"
-source = "git+https://github.com/ironflowx/foundation?rev=01b055fded1e6f6bbbc2015a2ea45856841fb8e0#01b055fded1e6f6bbbc2015a2ea45856841fb8e0"
+source = "git+https://github.com/ironflowx/foundation?rev=e20948dd7b9306bb88895428a5b531b2b7ad73b3#e20948dd7b9306bb88895428a5b531b2b7ad73b3"
 dependencies = [
  "getrandom 0.4.3",
  "ironflowx-core",
@@ -390,7 +390,7 @@ dependencies = [
 [[package]]
 name = "ironflowx-codegen"
 version = "0.3.0"
-source = "git+https://github.com/ironflowx/foundation?rev=01b055fded1e6f6bbbc2015a2ea45856841fb8e0#01b055fded1e6f6bbbc2015a2ea45856841fb8e0"
+source = "git+https://github.com/ironflowx/foundation?rev=e20948dd7b9306bb88895428a5b531b2b7ad73b3#e20948dd7b9306bb88895428a5b531b2b7ad73b3"
 dependencies = [
  "jsonschema",
  "prost-reflect",
@@ -400,7 +400,7 @@ dependencies = [
 [[package]]
 name = "ironflowx-core"
 version = "0.3.0"
-source = "git+https://github.com/ironflowx/foundation?rev=01b055fded1e6f6bbbc2015a2ea45856841fb8e0#01b055fded1e6f6bbbc2015a2ea45856841fb8e0"
+source = "git+https://github.com/ironflowx/foundation?rev=e20948dd7b9306bb88895428a5b531b2b7ad73b3#e20948dd7b9306bb88895428a5b531b2b7ad73b3"
 dependencies = [
  "uuid",
  "zeroize",
@@ -409,7 +409,7 @@ dependencies = [
 [[package]]
 name = "ironflowx-events"
 version = "0.3.0"
-source = "git+https://github.com/ironflowx/foundation?rev=01b055fded1e6f6bbbc2015a2ea45856841fb8e0#01b055fded1e6f6bbbc2015a2ea45856841fb8e0"
+source = "git+https://github.com/ironflowx/foundation?rev=e20948dd7b9306bb88895428a5b531b2b7ad73b3#e20948dd7b9306bb88895428a5b531b2b7ad73b3"
 dependencies = [
  "ironflowx-core",
  "serde_core",
@@ -419,7 +419,7 @@ dependencies = [
 [[package]]
 name = "ironflowx-operations"
 version = "0.3.0"
-source = "git+https://github.com/ironflowx/foundation?rev=01b055fded1e6f6bbbc2015a2ea45856841fb8e0#01b055fded1e6f6bbbc2015a2ea45856841fb8e0"
+source = "git+https://github.com/ironflowx/foundation?rev=e20948dd7b9306bb88895428a5b531b2b7ad73b3#e20948dd7b9306bb88895428a5b531b2b7ad73b3"
 dependencies = [
  "getrandom 0.4.3",
  "ironflowx-authz",
@@ -435,7 +435,7 @@ dependencies = [
 [[package]]
 name = "ironflowx-proto"
 version = "0.3.0"
-source = "git+https://github.com/ironflowx/foundation?rev=01b055fded1e6f6bbbc2015a2ea45856841fb8e0#01b055fded1e6f6bbbc2015a2ea45856841fb8e0"
+source = "git+https://github.com/ironflowx/foundation?rev=e20948dd7b9306bb88895428a5b531b2b7ad73b3#e20948dd7b9306bb88895428a5b531b2b7ad73b3"
 dependencies = [
  "ironflowx-core",
 ]
@@ -443,7 +443,7 @@ dependencies = [
 [[package]]
 name = "ironflowx-store"
 version = "0.3.0"
-source = "git+https://github.com/ironflowx/foundation?rev=01b055fded1e6f6bbbc2015a2ea45856841fb8e0#01b055fded1e6f6bbbc2015a2ea45856841fb8e0"
+source = "git+https://github.com/ironflowx/foundation?rev=e20948dd7b9306bb88895428a5b531b2b7ad73b3#e20948dd7b9306bb88895428a5b531b2b7ad73b3"
 dependencies = [
  "ironflowx-authz",
  "ironflowx-core",

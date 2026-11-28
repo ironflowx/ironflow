@@ -9,7 +9,7 @@ The engine itself, with its ledger, credentials, control plane, wire, HTTP door 
 ## What it does
 
 - The first `serve` bootstraps the engine and writes the admin key to `admin.key`, or takes the key you supply as a seed.
-- Create keys scoped `read`, `write` or `admin`, read-only unless asked otherwise, with an optional expiry; list them, and revoke one.
+- Create keys scoped `read`, `write`, `admin` or `execute`, read-only unless asked otherwise, with an optional expiry; list them, and revoke one.
 - Emit an event, or a batch of up to 100, with data, metadata, a version and an idempotency key; each records the key that emitted it.
 - Read an event by ID, or list events newest first, as soon as any emit returns.
 - The CLI prints JSON and exit codes an agent branches on, and `describe` gives each operation's input and output schemas and a runnable example, offline.

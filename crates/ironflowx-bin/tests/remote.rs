@@ -503,22 +503,22 @@ async fn a_key_made_with_execute_holds_it_alone() {
             .args(args)
             .env("IRONFLOWX_URL", format!("http://{addr}"))
             .env("IRONFLOWX_KEY", key);
-        let out = tokio::task::block_in_place(|| command.output()).unwrap();
-        let json = |bytes: &[u8]| serde_json::from_slice(bytes).unwrap_or(serde_json::Value::Null);
-        (out.status.code(), json(&out.stdout), json(&out.stderr))
+        tokio::task::block_in_place(|| command.output()).unwrap()
     };
-    let (code, created, _) = run(&admin, &["keys", "create", "--scopes", "execute"]);
-    assert_eq!(code, Some(0));
+    let json = |bytes: &[u8]| serde_json::from_slice::<serde_json::Value>(bytes).unwrap();
+    let out = run(&admin, &["keys", "create", "--scopes", "execute"]);
+    assert_eq!((out.status.code(), &*out.stderr), (Some(0), &b""[..]));
+    let created = json(&out.stdout);
     assert_eq!(created["info"]["scopes"], serde_json::json!(["execute"]));
     let key = created["key"].as_str().expect("the new key");
-    let (code, me, _) = run(key, &["whoami"]);
-    assert_eq!(code, Some(0));
-    assert_eq!(me["scopes"], serde_json::json!(["execute"]));
+    let out = run(key, &["whoami"]);
+    assert_eq!((out.status.code(), &*out.stderr), (Some(0), &b""[..]));
+    assert_eq!(json(&out.stdout)["scopes"], serde_json::json!(["execute"]));
     for (args, scope) in [
         (&["events", "emit", "--name", "order.placed"][..], "write"),
         (&["events", "list"][..], "read"),
     ] {
-        let (code, out, envelope) = run(key, args);
+        let out = run(key, args);
         let expected = serde_json::json!({
             "code": "permission_denied",
             "message": format!("missing scope: {scope}"),
@@ -526,8 +526,9 @@ async fn a_key_made_with_execute_holds_it_alone() {
             "hint": format!("create a key with scope {scope}, or use one that has it"),
         });
         assert_eq!(
-            (code, out, envelope),
-            (Some(4), serde_json::Value::Null, expected)
+            (out.status.code(), &*out.stdout, json(&out.stderr)),
+            (Some(4), &b""[..], expected),
+            "{args:?}"
         );
     }
 }
