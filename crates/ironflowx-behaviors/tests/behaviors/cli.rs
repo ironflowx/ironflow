@@ -347,7 +347,7 @@ fn one_envelope(w: &mut Cli, code: String, retryable: bool) {
 }
 
 /// Of a failure, which printed an envelope.
-#[then(regex = r"^it exits with code ([1-8])$")]
+#[then(regex = r"^it exits with code ([1-9])$")]
 fn exits(w: &mut Cli, code: i32) {
     assert_eq!(w.ran().status.code(), Some(code));
 }
